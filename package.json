@@ -1,0 +1,20 @@
+{
+  "name": "ch0wn3rs",
+  "version": "1.0.0",
+  "description": "Cybersecurity Club Landing Page",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "keywords": ["astro", "cybersecurity", "club"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@astrojs/node": "^9.4.4",
+    "astro": "^5.14.1"
+  }
+}
