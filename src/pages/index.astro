@@ -240,8 +240,7 @@ import Layout from '../layouts/Layout.astro';
     position: relative;
     background: linear-gradient(135deg, #000000 0%, #1a0000 100%);
     overflow: hidden;
-    margin: 0 20px;
-    border-radius: 10px;
+    padding: 0 20px;
   }
   
   .hero-background {
@@ -413,10 +412,9 @@ import Layout from '../layouts/Layout.astro';
   
   /* About Section */
   .about {
-    padding: 100px 0;
+    padding: 100px 20px;
     background-color: var(--dark-gray);
-    margin: 20px 20px;
-    border-radius: 10px;
+    margin: 20px 0;
   }
   
   .section-title {
@@ -510,10 +508,9 @@ import Layout from '../layouts/Layout.astro';
   
   /* Services Section */
   .services {
-    padding: 100px 0;
+    padding: 100px 20px;
     background-color: var(--black);
-    margin: 20px 20px;
-    border-radius: 10px;
+    margin: 20px 0;
   }
   
   .services-grid {
@@ -569,10 +566,9 @@ import Layout from '../layouts/Layout.astro';
   
   /* Team Section */
   .team {
-    padding: 100px 0;
+    padding: 100px 20px;
     background-color: var(--dark-gray);
-    margin: 20px 20px;
-    border-radius: 10px;
+    margin: 20px 0;
   }
   
   .team-grid {
@@ -629,10 +625,8 @@ import Layout from '../layouts/Layout.astro';
   /* Footer */
   .footer {
     background-color: var(--dark-gray);
-    padding: 3rem 0 1rem;
+    padding: 3rem 20px 1rem;
     border-top: 2px solid var(--primary-red);
-    margin: 0 20px;
-    border-radius: 0 0 10px 10px;
   }
   
   .footer-content {
@@ -723,14 +717,14 @@ import Layout from '../layouts/Layout.astro';
       font-size: 2rem;
     }
     
-    /* Reduce margins on mobile for better space utilization */
+    /* Reduce padding on mobile for better space utilization */
     .hero,
     .about,
     .services,
     .team,
     .footer {
-      margin-left: 10px;
-      margin-right: 10px;
+      padding-left: 10px;
+      padding-right: 10px;
     }
   }
 </style>
