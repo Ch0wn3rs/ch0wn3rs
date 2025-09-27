@@ -240,6 +240,8 @@ import Layout from '../layouts/Layout.astro';
     position: relative;
     background: linear-gradient(135deg, #000000 0%, #1a0000 100%);
     overflow: hidden;
+    margin: 0 20px;
+    border-radius: 10px;
   }
   
   .hero-background {
@@ -413,7 +415,7 @@ import Layout from '../layouts/Layout.astro';
   .about {
     padding: 100px 0;
     background-color: var(--dark-gray);
-    margin: 20px;
+    margin: 20px 20px;
     border-radius: 10px;
   }
   
@@ -510,7 +512,7 @@ import Layout from '../layouts/Layout.astro';
   .services {
     padding: 100px 0;
     background-color: var(--black);
-    margin: 20px;
+    margin: 20px 20px;
     border-radius: 10px;
   }
   
@@ -569,7 +571,7 @@ import Layout from '../layouts/Layout.astro';
   .team {
     padding: 100px 0;
     background-color: var(--dark-gray);
-    margin: 20px;
+    margin: 20px 20px;
     border-radius: 10px;
   }
   
@@ -629,6 +631,8 @@ import Layout from '../layouts/Layout.astro';
     background-color: var(--dark-gray);
     padding: 3rem 0 1rem;
     border-top: 2px solid var(--primary-red);
+    margin: 0 20px;
+    border-radius: 0 0 10px 10px;
   }
   
   .footer-content {
@@ -707,7 +711,6 @@ import Layout from '../layouts/Layout.astro';
       justify-content: center;
     }
     
-    
     .footer-content {
       grid-template-columns: 1fr;
     }
@@ -718,6 +721,16 @@ import Layout from '../layouts/Layout.astro';
     
     .section-title {
       font-size: 2rem;
+    }
+    
+    /* Reduce margins on mobile for better space utilization */
+    .hero,
+    .about,
+    .services,
+    .team,
+    .footer {
+      margin-left: 10px;
+      margin-right: 10px;
     }
   }
 </style>
