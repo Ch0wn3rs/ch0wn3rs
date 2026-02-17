@@ -10,11 +10,16 @@
     "preview": "astro preview",
     "astro": "astro"
   },
-  "keywords": ["astro", "cybersecurity", "club"],
+  "keywords": [
+    "astro",
+    "cybersecurity",
+    "club"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@astrojs/node": "^9.4.4",
+    "@phosphor-icons/web": "^2.1.2",
     "astro": "^5.14.1"
   }
 }
