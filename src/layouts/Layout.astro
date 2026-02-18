@@ -15,6 +15,9 @@ const { title, description = "Ch0wn3rs - Elite Cybersecurity Club" } = Astro.pro
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <title>{title}</title>
     <style>
       * {
@@ -34,7 +37,7 @@ const { title, description = "Ch0wn3rs - Elite Cybersecurity Club" } = Astro.pro
       }
       
       body {
-        font-family: 'Courier New', monospace;
+        font-family: 'Nunito', sans-serif;
         background-color: var(--black);
         color: var(--text-light);
         line-height: 1.6;
@@ -52,58 +55,146 @@ const { title, description = "Ch0wn3rs - Elite Cybersecurity Club" } = Astro.pro
         position: fixed;
         top: 0;
         width: 100%;
-        background-color: rgba(0, 0, 0, 0.95);
-        backdrop-filter: blur(10px);
+        background-color: transparent;
+        backdrop-filter: none;
         z-index: 1000;
-        border-bottom: 2px solid var(--primary-red);
+        border-bottom: none;
+        padding: 1.5rem 0;
+        transition: all 0.3s ease;
+      }
+
+      .navbar.scrolled {
+        padding: 1rem 0;
       }
       
       .nav-container {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
-        padding: 1rem 0;
+        padding: 0 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        position: relative;
       }
       
-      .logo {
-        font-size: 1.8rem;
-        font-weight: bold;
-        color: var(--primary-red);
+      .nav-logo {
+        margin-right: 0;
+        display: flex;
+        align-items: center;
+      }
+      
+      .nav-logo a {
+        display: flex;
+        align-items: center;
         text-decoration: none;
-        text-shadow: 0 0 10px var(--primary-red);
+        padding: 0.3rem;
+      }
+      
+      .nav-logo img {
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        border: 2px solid rgba(220, 20, 60, 0.3);
+      }
+      
+      .nav-logo img:hover {
+        transform: scale(1.05);
+        border-color: var(--primary-red);
+        box-shadow: 0 0 15px rgba(220, 20, 60, 0.5);
+      }
+      
+      .nav-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0;
+      }
+      
+      .nav-social {
+        margin-left: 0;
+        display: flex;
+        align-items: center;
+      }
+      
+      .nav-social a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        padding: 0.6rem 1.5rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 400;
+        letter-spacing: 0.3px;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        background-color: transparent;
+        margin: 0;
+        white-space: nowrap;
+      }
+      
+      .nav-social a:hover {
+        color: var(--white);
+        background-color: rgba(220, 20, 60, 0.1);
+      }
+      
+      .nav-social a.active {
+        color: var(--white);
+        background-color: var(--primary-red);
+        box-shadow: 0 0 20px rgba(220, 20, 60, 0.5);
       }
       
       .nav-links {
         display: flex;
         list-style: none;
-        gap: 2rem;
+        gap: 0;
+        align-items: center;
+        background-color: transparent;
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        backdrop-filter: none;
+        border: none;
+        transition: all 0.3s ease;
+      }
+
+      .navbar.scrolled .nav-links {
+        background-color: rgba(26, 26, 26, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(220, 20, 60, 0.2);
+      }
+      
+      .navbar.scrolled .nav-logo,
+      .navbar.scrolled .nav-social {
+        opacity: 1;
       }
       
       .nav-links a {
-        color: var(--text-light);
+        color: rgba(255, 255, 255, 0.7);
         text-decoration: none;
-        transition: color 0.3s ease;
-        padding: 0.5rem 0;
+        transition: all 0.3s ease;
+        padding: 0.6rem 1.5rem;
         position: relative;
+        font-size: 0.9rem;
+        font-weight: 400;
+        letter-spacing: 0.3px;
+        border-radius: 50px;
+        white-space: nowrap;
+        margin: 0;
       }
       
       .nav-links a:hover {
-        color: var(--primary-red);
+        color: var(--white);
+        background-color: rgba(220, 20, 60, 0.1);
+      }
+
+      .nav-links a.active {
+        color: var(--white);
+        background-color: var(--primary-red);
+        box-shadow: 0 0 20px rgba(220, 20, 60, 0.5);
       }
       
       .nav-links a::after {
-        content: '';
-        position: absolute;
-        width: 0;
-        height: 2px;
-        bottom: 0;
-        left: 0;
-        background-color: var(--primary-red);
-        transition: width 0.3s ease;
-      }
-      
-      .nav-links a:hover::after {
-        width: 100%;
+        display: none;
       }
       
       /* Mobile Menu */
@@ -122,17 +213,38 @@ const { title, description = "Ch0wn3rs - Elite Cybersecurity Club" } = Astro.pro
       }
       
       @media (max-width: 768px) {
+        .nav-container {
+          justify-content: space-between;
+          padding: 0 1rem;
+        }
+        
+        .nav-logo,
+        .nav-social {
+          display: none;
+        }
+        
+        .nav-center {
+          width: 100%;
+        }
+
         .nav-links {
           position: fixed;
           left: -100%;
-          top: 70px;
+          top: 80px;
           flex-direction: column;
-          background-color: var(--black);
+          background-color: rgba(0, 0, 0, 0.95);
           width: 100%;
           text-align: center;
           transition: 0.3s;
           box-shadow: 0 10px 27px rgba(220, 20, 60, 0.3);
           padding: 2rem 0;
+          border-radius: 0;
+          border: 1px solid rgba(220, 20, 60, 0.2);
+        }
+
+        .nav-links a {
+          width: 80%;
+          margin: 0 auto;
         }
         
         .nav-links.active {
@@ -145,7 +257,7 @@ const { title, description = "Ch0wn3rs - Elite Cybersecurity Club" } = Astro.pro
       }
       
       main {
-        margin-top: 70px;
+        margin-top: 0;
       }
       
       /* Button Styles */
@@ -218,13 +330,20 @@ const { title, description = "Ch0wn3rs - Elite Cybersecurity Club" } = Astro.pro
     <nav class="navbar">
       <div class="container">
         <div class="nav-container">
-          <a href="#" class="logo">ch0wn3rs</a>
           <ul class="nav-links" id="nav-links">
-            <li><a href="#home">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#services">Services</a></li>
-            <li><a href="#team">Team</a></li>
+            <li class="nav-logo">
+              <a href="#home">
+                <img src="/Logo-qr.jpeg" alt="ch0wn3rs">
+              </a>
+            </li>
+            <li><a href="#about" class="nav-link">About</a></li>
+            <li><a href="#services" class="nav-link">Services</a></li>
+            <li><a href="#team" class="nav-link">Team</a></li>
+            <li class="nav-social">
+              <a href="#social" class="nav-link">Social</a>
+            </li>
           </ul>
+          
           <div class="menu-toggle" id="menu-toggle">
             <span></span>
             <span></span>
@@ -242,18 +361,29 @@ const { title, description = "Ch0wn3rs - Elite Cybersecurity Club" } = Astro.pro
       // Mobile menu toggle
       const menuToggle = document.getElementById('menu-toggle');
       const navLinks = document.getElementById('nav-links');
+      const navbar = document.querySelector('.navbar');
       
       if (menuToggle && navLinks) {
         menuToggle.addEventListener('click', () => {
           navLinks.classList.toggle('active');
         });
       }
+
+      // Show/hide navbar on scroll
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 100) {
+          navbar?.classList.add('scrolled');
+        } else {
+          navbar?.classList.remove('scrolled');
+        }
+      });
       
       // Smooth scrolling for anchor links
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
+      document.querySelectorAll('a[href^="#"]').forEach((anchor: Element) => {
+        anchor.addEventListener('click', function (this: HTMLAnchorElement, e: Event) {
           e.preventDefault();
-          const target = document.querySelector(this.getAttribute('href'));
+          const href = this.getAttribute('href');
+          const target = href ? document.querySelector(href) : null;
           if (target) {
             target.scrollIntoView({
               behavior: 'smooth'
@@ -263,6 +393,32 @@ const { title, description = "Ch0wn3rs - Elite Cybersecurity Club" } = Astro.pro
           }
         });
       });
+
+      // Active section detection
+      const sections = document.querySelectorAll('section[id]');
+      const navLinksArray = document.querySelectorAll('.nav-link');
+
+      function updateActiveNav() {
+        const scrollY = window.pageYOffset;
+
+        sections.forEach(section => {
+          const sectionHeight = (section as HTMLElement).offsetHeight;
+          const sectionTop = (section as HTMLElement).offsetTop - 100;
+          const sectionId = section.getAttribute('id');
+          
+          if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+            navLinksArray.forEach(link => {
+              link.classList.remove('active');
+              if (link.getAttribute('href') === `#${sectionId}`) {
+                link.classList.add('active');
+              }
+            });
+          }
+        });
+      }
+
+      window.addEventListener('scroll', updateActiveNav);
+      window.addEventListener('load', updateActiveNav);
     </script>
   </body>
 </html>
