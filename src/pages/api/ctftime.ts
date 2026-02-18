@@ -63,33 +63,20 @@ export async function GET({ request }: { request: Request }) {
       }
     }
     
-    // Fetch year ratings to get 2026 points
-    const ratingsResponse = await fetch(`https://ctftime.org/api/v1/teams/${teamId}/ratings/${year}/`, {
-      headers: {
-        'User-Agent': 'ch0wn3rs-website'
-      }
-    });
+    // Use current year as the founding year (updates automatically each January 1st)
+    const currentDate = new Date();
+    const activeSince = currentDate.getFullYear().toString();
     
-    let yearPoints = '45.81'; // Default from CTFtime page
-    if (ratingsResponse.ok) {
-      const ratingsData = await ratingsResponse.json();
-      if (ratingsData && Object.keys(ratingsData).length > 0) {
-        const total = Object.values(ratingsData).reduce((sum: number, event: any) => {
-          return sum + (parseFloat(event.rating_points) || 0);
-        }, 0);
-        yearPoints = total.toFixed(2);
-      }
-    }
-    
-    // Extract data - use overall rating place (rank 131)
-    const globalRank = teamData.rating?.[0]?.rating_place || '131';
-    const rating = teamData.rating?.[0]?.rating_points?.toFixed(2) || '45.81';
+    // Extract data - use current year rating place and points
+    const currentYear = teamData.rating?.[String(year)] || {};
+    const globalRank = currentYear.rating_place || teamData.rating?.[0]?.rating_place || '131';
+    const rating = currentYear.rating_points?.toFixed(2) || teamData.rating?.[0]?.rating_points?.toFixed(2) || '45.81';
     
     return new Response(JSON.stringify({
       colombiaRank,
       globalRank: `#${globalRank}`,
       rating: `${rating} pts`,
-      yearPoints: `${yearPoints} pts`
+      activeSince: activeSince
     }), {
       status: 200,
       headers: { 
@@ -105,7 +92,7 @@ export async function GET({ request }: { request: Request }) {
       colombiaRank: '#1 COLOMBIA',
       globalRank: 'N/A',
       rating: 'N/A',
-      yearPoints: 'N/A'
+      activeSince: 'N/A'
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }

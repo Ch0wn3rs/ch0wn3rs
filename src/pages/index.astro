@@ -45,9 +45,9 @@ import '@phosphor-icons/web/regular';
           </div>
           
           <div class="stat-item">
-            <i class="ph ph-calendar"></i>
+            <i class="ph ph-calendar-check"></i>
             <div class="stat-content">
-              <span class="stat-label">2026 Points</span>
+              <span class="stat-label">Active Since</span>
               <span class="stat-value" id="yearPoints">Loading...</span>
             </div>
           </div>
@@ -161,6 +161,8 @@ import '@phosphor-icons/web/regular';
           throw new Error(data.error);
         }
         
+        console.log('CTFtime data:', data);
+        
         // Update Colombia rank badge
         document.getElementById('colombiaRank').textContent = data.colombiaRank;
         
@@ -170,8 +172,8 @@ import '@phosphor-icons/web/regular';
         // Update rating
         document.getElementById('rating').textContent = data.rating;
         
-        // Update year points
-        document.getElementById('yearPoints').textContent = data.yearPoints;
+        // Update active since
+        document.getElementById('yearPoints').textContent = data.activeSince;
         
       } catch (error) {
         console.error('Error fetching CTFtime data:', error);
@@ -205,11 +207,7 @@ import '@phosphor-icons/web/regular';
         });
       });
       
-      // Open first item by default
-      const firstItem = document.querySelector('.accordion-item');
-      if (firstItem) {
-        firstItem.classList.add('active');
-      }
+      // All items closed by default (no auto-open)
     });
   </script>
 
@@ -1433,6 +1431,7 @@ import '@phosphor-icons/web/regular';
       grid-template-columns: 1fr;
       gap: 2rem;
       padding: 1rem;
+      padding-top: 100px;
     }
     
     .hero-stats {
