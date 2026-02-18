@@ -1,6 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import '@phosphor-icons/web/regular';
+import { fetchCtftime } from '../lib/ctftime';
+
+const TEAM_ID = '408704';
+const ctftime = await fetchCtftime(TEAM_ID);
 ---
 
 <Layout title="Ch0wn3rs - Elite Cybersecurity Club">
@@ -24,7 +28,7 @@ import '@phosphor-icons/web/regular';
         <div class="stats-card">
           <div class="best-badge">
             <i class="ph ph-trophy"></i>
-            <span class="badge-text" id="colombiaRank">Loading...</span>
+            <span class="badge-text" id="colombiaRank">{ctftime.colombiaRank}</span>
             <span class="flag">🇨🇴</span>
           </div>
           
@@ -32,7 +36,7 @@ import '@phosphor-icons/web/regular';
             <i class="ph ph-globe"></i>
             <div class="stat-content">
               <span class="stat-label">Global Rank</span>
-              <span class="stat-value" id="globalRank">Loading...</span>
+              <span class="stat-value" id="globalRank">{ctftime.globalRank}</span>
             </div>
           </div>
           
@@ -40,7 +44,7 @@ import '@phosphor-icons/web/regular';
             <i class="ph ph-chart-line"></i>
             <div class="stat-content">
               <span class="stat-label">Rating</span>
-              <span class="stat-value" id="rating">Loading...</span>
+              <span class="stat-value" id="rating">{ctftime.rating}</span>
             </div>
           </div>
           
@@ -48,7 +52,7 @@ import '@phosphor-icons/web/regular';
             <i class="ph ph-calendar-check"></i>
             <div class="stat-content">
               <span class="stat-label">Active Since</span>
-              <span class="stat-value" id="yearPoints">Loading...</span>
+              <span class="stat-value" id="yearPoints">{ctftime.activeSince}</span>
             </div>
           </div>
           
@@ -147,42 +151,35 @@ import '@phosphor-icons/web/regular';
     });
   </script>
 
-  <script is:inline>
-    // CTFtime API data fetch
-    window.addEventListener('load', async function() {
+  <script is:inline type="module">
+    // Hydrate and refresh scoreboard every 10 minutes (client-side)
+    (() => {
       const TEAM_ID = '408704';
-      
-      try {
-        // Fetch team info from our API route
-        const response = await fetch(`/api/ctftime?teamId=${TEAM_ID}`);
-        const data = await response.json();
-        
-        if (data.error) {
-          throw new Error(data.error);
+      const INTERVAL = 10 * 60 * 1000; // 10 minutes
+
+      async function hydrate() {
+        try {
+          const res = await fetch(`/api/ctftime?teamId=${TEAM_ID}`);
+          if (!res.ok) throw new Error('Network response was not ok');
+          const data = await res.json();
+
+          if (data?.colombiaRank) document.getElementById('colombiaRank').textContent = data.colombiaRank;
+          if (data?.globalRank) document.getElementById('globalRank').textContent = data.globalRank;
+          if (data?.rating) document.getElementById('rating').textContent = data.rating;
+          if (data?.activeSince) document.getElementById('yearPoints').textContent = data.activeSince;
+
+          // mark when the client last updated the values
+          const now = new Date().toISOString();
+          document.querySelectorAll('[id="colombiaRank"], [id="globalRank"], [id="rating"], [id="yearPoints"]').forEach(el => el.setAttribute('data-ctf-updated', now));
+        } catch (err) {
+          console.debug('CTFtime client hydrate failed:', err);
         }
-        
-        console.log('CTFtime data:', data);
-        
-        // Update Colombia rank badge
-        document.getElementById('colombiaRank').textContent = data.colombiaRank;
-        
-        // Update global rank
-        document.getElementById('globalRank').textContent = data.globalRank;
-        
-        // Update rating
-        document.getElementById('rating').textContent = data.rating;
-        
-        // Update active since
-        document.getElementById('yearPoints').textContent = data.activeSince;
-        
-      } catch (error) {
-        console.error('Error fetching CTFtime data:', error);
-        document.getElementById('colombiaRank').textContent = '#1 COLOMBIA';
-        document.getElementById('globalRank').textContent = 'N/A';
-        document.getElementById('rating').textContent = 'N/A';
-        document.getElementById('yearPoints').textContent = 'N/A';
       }
-    });
+
+      // hydrate immediately (client) then every INTERVAL
+      hydrate();
+      setInterval(hydrate, INTERVAL);
+    })();
   </script>
 
   <script is:inline>
