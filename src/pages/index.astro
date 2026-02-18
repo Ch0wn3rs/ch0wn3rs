@@ -1205,6 +1205,16 @@ const ctftime = await fetchCtftime(TEAM_ID);
     transform: translateY(-5px);
     border-color: var(--primary-red);
   }
+
+  /* Ensure terminal animation inside member cards is left-aligned */
+  .team-member .terminal {
+    display: block;
+    text-align: left;
+    margin-left: 0;
+    margin-right: auto;
+    width: auto;
+    max-width: 500px;
+  }
   
   .member-avatar {
     font-size: 4rem;
