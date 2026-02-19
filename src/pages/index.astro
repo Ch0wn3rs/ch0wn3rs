@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import '@phosphor-icons/web/regular';
 import { fetchCtftime } from '../lib/ctftime';
+import { animate, stagger } from 'animejs';
 
 const TEAM_ID = '408704';
 const ctftime = await fetchCtftime(TEAM_ID);
@@ -182,6 +183,326 @@ const ctftime = await fetchCtftime(TEAM_ID);
     })();
   </script>
 
+  <script>
+    import { animate, stagger } from 'animejs';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Offensive Security: Binary Stream Background
+      const binaryStream = document.getElementById('binaryStream');
+      if (binaryStream) {
+        const chars = '01';
+        const streamSize = 1000;
+        let content = '';
+        for (let i = 0; i < streamSize; i++) {
+          content += chars[Math.floor(Math.random() * chars.length)];
+        }
+        binaryStream.textContent = content;
+
+        animate('#binaryStream', {
+          opacity: [0.02, 0.08, 0.02],
+          duration: 3000,
+          loop: true,
+          easing: 'easeInOutQuad'
+        });
+      }
+
+      // Brute Force: Text Scramble Effect
+      const scrambleLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()';
+      
+      function scrambleText(el: HTMLElement) {
+        const originalText = el.textContent || '';
+        const iterations = 10;
+        let count = 0;
+
+        const interval = setInterval(() => {
+          el.textContent = originalText
+            .split('')
+            .map((char, index) => {
+              if (index < count) return originalText[index];
+              return scrambleLetters[Math.floor(Math.random() * scrambleLetters.length)];
+            })
+            .join('');
+
+          if (count >= originalText.length) {
+            clearInterval(interval);
+            el.textContent = originalText;
+          }
+          count += originalText.length / iterations;
+        }, 50);
+      }
+
+      // Staggered entrance for SERVICE cards only
+      animate('.service-card', {
+        translateY: [50, 0],
+        scale: [0.95, 1],
+        opacity: [0, 1],
+        delay: stagger(100, {start: 500}),
+        ease: 'easeOutExpo'
+      });
+
+      // Glitch effect for brand name
+      const brandName = document.querySelector('.brand-name');
+      if (brandName) {
+        brandName.addEventListener('mouseenter', () => {
+          animate(brandName, {
+            translateX: [
+              { to: -2, duration: 50 },
+              { to: 2, duration: 50 },
+              { to: -2, duration: 50 },
+              { to: 0, duration: 50 }
+            ],
+            ease: 'easeInOutQuad',
+            loop: 2
+          });
+        });
+      }
+
+      // Offensive Security: Target Lock Reticle Animation
+      document.querySelectorAll('.team-member').forEach(card => {
+        const reticles = card.querySelectorAll('.reticle');
+        
+        card.addEventListener('mouseenter', () => {
+          animate(reticles, {
+            scale: [1.2, 1],
+            opacity: [0, 1],
+            duration: 400,
+            easing: 'easeOutBack',
+            delay: stagger(50)
+          });
+        });
+
+        card.addEventListener('mouseleave', () => {
+          animate(reticles, {
+            scale: 1.2,
+            opacity: 0,
+            duration: 300,
+            easing: 'easeInQuad'
+          });
+        });
+      });
+
+      // Phase 4: Specialized Reveals for All Members
+      const REVEAL_LOGS: Record<string, string[]> = {
+        crypto: [
+          '[+] INITIALIZING BRUTE FORCE ATTACK...',
+          '[!] DETECTING RSA-2048 KEY...',
+          '[+] SCALE: 2^64 COMBINATIONS',
+          '[+] RUNNING FREQUENCY ANALYSIS...',
+          '[OK] KEY COLLISION FOUND AT ADDR: 0x' + Math.random().toString(16).substr(2, 4),
+          '[+] DECRYPTING PAYLOAD...'
+        ],
+        ai: [
+          '[+] ACCESSING NEURAL INTERFACE...',
+          '[!] BYPASSING SILICON SAFETY LIMITS...',
+          '[+] DUMPING MODEL WEIGHTS FROM SRAM...',
+          '[+] RECOVERING CLASSIFIER ENTROPY...',
+          '[OK] BIOMETRIC OVERRIDE SUCCESSFUL',
+          '[+] EXTRACTING IDENTITY VECTOR...'
+        ],
+        osint: [
+          '[+] MAPPING DIGITAL FOOTPRINT...',
+          '[!] CRAWLING LSB STENO-DATA...',
+          '[+] ANALYZING SOCIAL GRAPH METADATA...',
+          '[+] COORDINATES TRACED TO UPB_LAB_01',
+          '[OK] ANONYMITY SHATTERED',
+          '[+] REVEALING TARGET PROFILE...'
+        ],
+        reversing: [
+          '[+] ATTACHING DEBUGGER TO PROCESS...',
+          '[!] STACK OVERFLOW DETECTED AT 0x00401000',
+          '[+] DUMPING MEMORY ADDR: 0x' + Math.random().toString(16).substr(2, 8).toUpperCase(),
+          '[!] BYPASSING DEP/ASLR...',
+          '[OK] PAYLOAD DECRYPTED SUCCESSFULLY',
+          '[+] EXTRACTING STRINGS...'
+        ],
+        forensics: [
+          '[+] MOUNTING E01 IMAGE FILE...',
+          '[!] RECOVERING DELETED SLACK SPACE...',
+          '[+] PARSING NTFS MFT RECORDS...',
+          '[+] ANALYZING SYSTEM LOG ENTROPY...',
+          '[OK] HIDDEN ARTIFACTS RECOVERED',
+          '[+] EXFILTRATING EVIDENCE...'
+        ],
+        pwn: [
+          '[+] CONNECTING TO REMOTE SOCKET...',
+          '[!] BUFFER OVERFLOW EXPLOIT SENT...',
+          '[+] CORRUPTING EIP REGISTER...',
+          '[+] ESCALATING PRIVILEGES TO ROOT',
+          '[OK] SHELL ACCESS GRANTED',
+          '[+] FETCHING /etc/shadow DATA...'
+        ]
+      };
+
+      async function runSpecializedReveal(card: HTMLElement) {
+        if (card.classList.contains('reversing-active') || card.classList.contains('revealed')) return;
+        
+        const specialty = card.getAttribute('data-specialty') || 'reversing';
+        const lines = REVEAL_LOGS[specialty] || REVEAL_LOGS.reversing;
+        const content = card.querySelector('.terminal-content') as HTMLElement;
+        
+        if (!content) return;
+
+        // Ensure card is visible (override .animate-card opacity: 0)
+        card.style.opacity = '1';
+        card.classList.add('reversing-active');
+        content.innerHTML = '';
+        
+        // Scanline animation
+        const scanline = card.querySelector('.scanline');
+        if (scanline) {
+          animate(scanline, {
+            translateY: ['0%', '1000%'],
+            duration: 2000,
+            loop: true,
+            easing: 'linear'
+          });
+        }
+        
+        // Step-by-step terminal lines
+        for (const line of lines) {
+          const p = document.createElement('div');
+          p.className = 'terminal-line';
+          p.textContent = line;
+          content.appendChild(p);
+          
+          await new Promise(r => setTimeout(r, 80 + Math.random() * 100)); // Snappier timing
+          p.classList.add('active');
+          
+          if (line.includes('DUMPING') || line.includes('CRAWLING') || line.includes('BRUTE')) {
+            const dump = document.createElement('div');
+            dump.style.fontSize = '0.6rem';
+            dump.style.opacity = '0.5';
+            content.appendChild(dump);
+            for (let i = 0; i < 20; i++) { // Fewer chars for speed
+              dump.textContent += (Math.random() > 0.5 ? '1' : '0');
+              if (i % 10 === 0) await new Promise(r => setTimeout(r, 10));
+            }
+          }
+        }
+
+        // Final Flash
+        animate(content, {
+          backgroundColor: ['rgba(220, 20, 60, 0.4)', 'rgba(0, 0, 0, 0)'],
+          duration: 400,
+          easing: 'easeOutQuad'
+        });
+
+        // Reveal
+        return new Promise<void>((resolve) => {
+          setTimeout(() => {
+            card.classList.remove('reversing-active');
+            card.classList.add('revealed'); // Show the content (Name, Role, etc)
+            
+            // Trigger scramble on revealed elements
+            card.querySelectorAll('[data-scramble]').forEach(el => {
+              scrambleText(el as HTMLElement);
+            });
+
+            const emailEl = card.querySelector('[data-obfuscated]') as HTMLElement;
+            if (emailEl && !emailEl.classList.contains('revealed')) {
+               emailEl.click();
+            }
+            resolve();
+          }, 300); // Shorter pause before next card
+        });
+      }
+
+      async function runPulseScan(card: HTMLElement) {
+        if (card.classList.contains('reversing-active')) return;
+        
+        const content = card.querySelector('.terminal-content') as HTMLElement;
+        if (!content) return;
+
+        card.classList.add('reversing-active');
+        content.innerHTML = '<div class="terminal-line active">[+] SYNCHRONIZING DATA...</div>';
+        
+        const scanline = card.querySelector('.scanline');
+        if (scanline) {
+          animate(scanline, {
+            translateY: ['0%', '1000%'],
+            duration: 500,
+            easing: 'linear'
+          });
+        }
+
+        // Quick Flash pulse
+        animate(content, {
+          backgroundColor: ['rgba(220, 20, 60, 0.2)', 'rgba(0, 0, 0, 0)'],
+          duration: 300,
+          easing: 'easeOutQuad'
+        });
+
+        setTimeout(() => {
+          card.classList.remove('reversing-active');
+          content.innerHTML = '';
+        }, 500);
+      }
+
+      // IntersectionObserver for Sequential Reveal & Smart Re-entry
+      const teamSection = document.getElementById('team');
+      if (teamSection) {
+        let hasInitialized = false;
+        
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(async (entry) => {
+            if (entry.isIntersecting) {
+              const cards = Array.from(document.querySelectorAll('.reversing-card')) as HTMLElement[];
+              
+              if (!hasInitialized) {
+                // First time: Full Sequential Reveal
+                hasInitialized = true;
+                observer.unobserve(entry.target); // Stop observing for FULL reveal
+                
+                for (const card of cards) {
+                  await runSpecializedReveal(card);
+                  await new Promise(r => setTimeout(r, 150));
+                }
+                
+                // Start observing again for PULSE reveal on re-entry
+                setTimeout(() => observer.observe(teamSection), 2000);
+              } else {
+                // Subsequent times: Pulse Scan
+                cards.forEach(card => runPulseScan(card));
+              }
+            }
+          });
+        }, { threshold: 0.1 }); // Lower threshold for re-entry detection
+        
+        observer.observe(teamSection);
+      }
+
+      // Fallback: Still allow manual trigger on click if not already revealed
+      document.querySelectorAll('.reversing-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+          if (!(e.target as HTMLElement).hasAttribute('data-obfuscated')) {
+            runSpecializedReveal(card as HTMLElement);
+          }
+        });
+      });
+
+      /* 
+      // [PROPOSED: ANTI-SCRAPING] - Data reveal logic
+      document.querySelectorAll('[data-obfuscated]').forEach(el => {
+        el.addEventListener('click', function() {
+          const obfuscated = (this as HTMLElement).getAttribute('data-obfuscated');
+          if (obfuscated) {
+            const decoded = atob(obfuscated);
+            animate(this, {
+              opacity: [0, 1],
+              duration: 500,
+              ease: 'linear',
+              onBegin: () => {
+                this.textContent = decoded;
+                this.classList.add('revealed');
+              }
+            });
+          }
+        });
+      });
+      */
+    });
+  </script>
+
   <script is:inline>
     // Accordion functionality
     document.addEventListener('DOMContentLoaded', function() {
@@ -358,50 +679,168 @@ const ctftime = await fetchCtftime(TEAM_ID);
 
   <!-- Team Section -->
   <section id="team" class="team">
+    <div class="binary-stream" id="binaryStream"></div>
     <div class="container">
       <h2 class="section-title">Meet The Team</h2>
       <div class="team-grid">
-        <div class="team-member">
+        <div class="team-member animate-card reversing-card" data-specialty="crypto" itemscope itemtype="https://schema.org/Person">
+          <div class="terminal-overlay">
+            <div class="terminal-content"></div>
+            <div class="scanline"></div>
+          </div>
+          <!-- Target Reticle SVGs -->
+          <div class="reticle reticle-tl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 20 L 0 0 L 20 0" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-tr"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 20 0 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-bl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 0 20 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-br"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 20 0 L 20 20 L 0 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+
           <div class="member-avatar"><i class="ph ph-key"></i></div>
-          <h3>RIOS</h3>
-          <p class="member-role">CRYPTOGRAPHY</p>
-          <p class="member-bio">Focused on solving <strong>cryptography</strong> challenges</p>
+          <h3 itemprop="name" data-scramble>RIOS</h3>
+          <p class="member-role" itemprop="jobTitle" data-scramble>CRYPTOGRAPHY</p>
+          <!-- [PROPOSED: SEO PROTECTION]
+          <div data-nosnippet>
+          -->
+            <p class="member-bio">Focused on solving <strong>cryptography</strong> challenges</p>
+          <!-- </div> -->
+          
+          <!-- [PROPOSED: ANTI-SCRAPING]
+          <div data-nosnippet>
+            <p class="member-email" data-obfuscated="cmlvc0BjaDB3bjNycy5uaW5qYQ==">Click to reveal</p>
+          </div>
+          -->
           <p class="member-email">rios@ch0wn3rs.ninja</p>
         </div>
-        <div class="team-member">
+
+        <div class="team-member animate-card reversing-card" data-specialty="ai" itemscope itemtype="https://schema.org/Person">
+          <div class="terminal-overlay">
+            <div class="terminal-content"></div>
+            <div class="scanline"></div>
+          </div>
+          <div class="reticle reticle-tl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 20 L 0 0 L 20 0" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-tr"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 20 0 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-bl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 0 20 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-br"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 20 0 L 20 20 L 0 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+
           <div class="member-avatar"><i class="ph ph-brain"></i></div>
-          <h3>02loveslollipop</h3>
-          <p class="member-role">AI & HARDWARE</p>
-          <p class="member-bio">Focused on solving <strong>AI & hardware</strong> challenges</p>
+          <h3 itemprop="name" data-scramble>02loveslollipop</h3>
+          <p class="member-role" itemprop="jobTitle" data-scramble>AI & HARDWARE</p>
+          <!-- [PROPOSED: SEO PROTECTION]
+          <div data-nosnippet>
+          -->
+            <p class="member-bio">Focused on solving <strong>AI & hardware</strong> challenges</p>
+          <!-- </div> -->
+          
+          <!-- [PROPOSED: ANTI-SCRAPING]
+          <div data-nosnippet>
+            <p class="member-email" data-obfuscated="emVyb3R3b0BjaDB3bjNycy5uaW5qYQ==">Click to reveal</p>
+          </div>
+          -->
           <p class="member-email">zerotwo@ch0wn3rs.ninja</p>
         </div>
-        <div class="team-member">
+
+        <div class="team-member animate-card reversing-card" data-specialty="osint" itemscope itemtype="https://schema.org/Person">
+          <div class="terminal-overlay">
+            <div class="terminal-content"></div>
+            <div class="scanline"></div>
+          </div>
+          <div class="reticle reticle-tl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 20 L 0 0 L 20 0" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-tr"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 20 0 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-bl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 0 20 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-br"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 20 0 L 20 20 L 0 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+
           <div class="member-avatar"><i class="ph ph-binoculars"></i></div>
-          <h3>hrcamilo</h3>
-          <p class="member-role">STEGO & OSINT</p>
-          <p class="member-bio">Focused on solving <strong>OSINT & stego</strong> challenges</p>
+          <h3 itemprop="name" data-scramble>hrcamilo</h3>
+          <p class="member-role" itemprop="jobTitle" data-scramble>STEGO & OSINT</p>
+          <!-- [PROPOSED: SEO PROTECTION]
+          <div data-nosnippet>
+          -->
+            <p class="member-bio">Focused on solving <strong>OSINT & stego</strong> challenges</p>
+          <!-- </div> -->
+          
+          <!-- [PROPOSED: ANTI-SCRAPING]
+          <div data-nosnippet>
+            <p class="member-email" data-obfuscated="aHJjYW1pbG9AY2gwd24zcnMubmluamE=">Click to reveal</p>
+          </div>
+          -->
           <p class="member-email">hrcamilo@ch0wn3rs.ninja</p>
         </div>
-        <div class="team-member">
+
+        <div class="team-member animate-card reversing-card" data-specialty="reversing" itemscope itemtype="https://schema.org/Person">
+          <div class="terminal-overlay">
+            <div class="terminal-content"></div>
+            <div class="scanline"></div>
+          </div>
+          <div class="reticle reticle-tl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 20 L 0 0 L 20 0" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-tr"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 20 0 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-bl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 0 20 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-br"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 20 0 L 20 20 L 0 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+
           <div class="member-avatar"><i class="ph ph-gear"></i></div>
-          <h3>InfinityPaiin</h3>
-          <p class="member-role">REVERSING</p>
-          <p class="member-bio">Focused on solving <strong>reversing</strong> challenges</p>
+          <h3 itemprop="name" data-scramble>InfinityPaiin</h3>
+          <p class="member-role" itemprop="jobTitle" data-scramble>REVERSING</p>
+          <!-- [PROPOSED: SEO PROTECTION]
+          <div data-nosnippet>
+          -->
+            <p class="member-bio">Focused on solving <strong>reversing</strong> challenges</p>
+          <!-- </div> -->
+          
+          <!-- [PROPOSED: ANTI-SCRAPING]
+          <div data-nosnippet>
+            <p class="member-email" data-obfuscated="aW5maW5pdHlwYWlpbkBjaDB3bjNycy5uaW5qYQ==">Click to reveal</p>
+          </div>
+          -->
           <p class="member-email">infinitypaiin@ch0wn3rs.ninja</p>
         </div>
-        <div class="team-member">
+
+        <div class="team-member animate-card reversing-card" data-specialty="forensics" itemscope itemtype="https://schema.org/Person">
+          <div class="terminal-overlay">
+            <div class="terminal-content"></div>
+            <div class="scanline"></div>
+          </div>
+          <div class="reticle reticle-tl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 20 L 0 0 L 20 0" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-tr"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 20 0 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-bl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 0 20 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-br"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 20 0 L 20 20 L 0 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+
           <div class="member-avatar"><i class="ph ph-detective"></i></div>
-          <h3>Neyi21</h3>
-          <p class="member-role">FORENSICS</p>
-          <p class="member-bio">Focused on solving <strong>forensics</strong> challenges</p>
+          <h3 itemprop="name" data-scramble>Neyi21</h3>
+          <p class="member-role" itemprop="jobTitle" data-scramble>FORENSICS</p>
+          <!-- [PROPOSED: SEO PROTECTION]
+          <div data-nosnippet>
+          -->
+            <p class="member-bio">Focused on solving <strong>forensics</strong> challenges</p>
+          <!-- </div> -->
+          
+          <!-- [PROPOSED: ANTI-SCRAPING]
+          <div data-nosnippet>
+            <p class="member-email" data-obfuscated="bmV5aTIxQGNoMHduM3JzLm5pbmph">Click to reveal</p>
+          </div>
+          -->
           <p class="member-email">neyi21@ch0wn3rs.ninja</p>
         </div>
-        <div class="team-member">
+
+        <div class="team-member animate-card reversing-card" data-specialty="pwn" itemscope itemtype="https://schema.org/Person">
+          <div class="terminal-overlay">
+            <div class="terminal-content"></div>
+            <div class="scanline"></div>
+          </div>
+          <div class="reticle reticle-tl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 20 L 0 0 L 20 0" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-tr"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 20 0 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-bl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 0 20 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+          <div class="reticle reticle-br"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 20 0 L 20 20 L 0 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
+
           <div class="member-avatar"><i class="ph ph-globe"></i></div>
-          <h3>Fu11shoot</h3>
-          <p class="member-role">PWN & WEB</p>
-          <p class="member-bio">Focused on solving <strong>pwn & web</strong> challenges</p>
-          <p class="member-email">fu11shoot@ch0wn3rs.ninja</p>
+          <h3 itemprop="name" data-scramble>Fu11shoot</h3>
+          <p class="member-role" itemprop="jobTitle" data-scramble>PWN & WEB</p>
+          <div data-nosnippet>
+            <p class="member-bio">Focused on solving <strong>pwn & web</strong> challenges</p>
+          </div>
+          <!-- [PROPOSED: ANTI-SCRAPING]
+          <div data-nosnippet>
+            <p class="member-email" data-obfuscated="ZnU0MXNob290QGNoMHduM3JzLm5pbmph">Click to reveal</p>
+          </div>
+          -->
+          <p class="member-email">fu41shoot@ch0wn3rs.ninja</p>
         </div>
       </div>
     </div>
@@ -1737,5 +2176,174 @@ const ctftime = await fetchCtftime(TEAM_ID);
     .stat-item i {
       font-size: 1.2rem;
     }
+  }
+  .member-email {
+    cursor: pointer;
+    color: var(--primary-red);
+    text-decoration: underline dotted;
+    transition: all 0.3s ease;
+    font-family: monospace;
+    font-size: 0.9rem;
+  }
+
+  .member-email:hover {
+    color: white;
+    text-shadow: 0 0 10px var(--primary-red);
+  }
+
+  .member-email.revealed {
+    cursor: default;
+    text-decoration: none;
+    color: white;
+  }
+
+  /* Offensive Security UI Elements */
+  .team-member {
+    position: relative;
+    overflow: hidden;
+    min-height: 320px; /* Stabilize height to prevent layout shift */
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Hide content initially for the sequence reveal */
+  .team-member .member-avatar,
+  .team-member h3,
+  .team-member .member-role,
+  .team-member [data-nosnippet] {
+    opacity: 0;
+    visibility: hidden; /* Prevent interaction and layout issues */
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .team-member.revealed .member-avatar,
+  .team-member.revealed h3,
+  .team-member.revealed .member-role,
+  .team-member.revealed [data-nosnippet] {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .reticle {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    color: var(--primary-red);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 5;
+  }
+
+  .reticle-tl { top: 10px; left: 10px; }
+  .reticle-tr { top: 10px; right: 10px; }
+  .reticle-bl { bottom: 10px; left: 10px; }
+  .reticle-br { bottom: 10px; right: 10px; }
+
+  .team-member:hover .reticle {
+    opacity: 1;
+  }
+
+  .team-member:hover .reticle-tl { transform: translate(-5px, -5px); }
+  .team-member:hover .reticle-tr { transform: translate(5px, -5px); }
+  .team-member:hover .reticle-bl { transform: translate(-5px, 5px); }
+  .team-member:hover .reticle-br { transform: translate(5px, 5px); }
+
+  .team {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .binary-stream {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0.05;
+    z-index: 0;
+    font-family: monospace;
+    font-size: 10px;
+    line-height: 1;
+    overflow: hidden;
+    color: var(--primary-red);
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+  }
+
+  /* Reversing Terminal Effect */
+  .terminal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 10;
+    display: none; /* Hidden until triggered */
+    padding: 20px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.8rem;
+    color: var(--primary-red);
+    overflow: hidden;
+    pointer-events: none;
+    border: 1px solid var(--primary-red);
+  }
+
+  .terminal-content {
+    white-space: pre-wrap;
+    word-break: break-all;
+    height: 100%;
+  }
+
+  .scanline {
+    width: 100%;
+    height: 2px;
+    background: rgba(220, 20, 60, 0.1);
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 11;
+  }
+
+  .reversing-card {
+    cursor: pointer;
+  }
+
+  .reversing-active .terminal-overlay {
+    display: block;
+  }
+
+  .terminal-line {
+    margin-bottom: 5px;
+    opacity: 0;
+  }
+
+  .terminal-line.active {
+    opacity: 1;
+  }
+
+  .terminal-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    background: var(--primary-red);
+    animation: blink 0.8s infinite;
+    vertical-align: middle;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .animate-card {
+    opacity: 0;
+  }
+
+  .service-card {
+    opacity: 0;
   }
 </style>

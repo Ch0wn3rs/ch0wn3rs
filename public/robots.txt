@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Allow: /#home
+Allow: /#about
+Allow: /#services
+
+# Block aggressive scrapers and specific paths
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+# Custom scraping protocol for researchers
+# Please respect our team data. Only use official APIs.
+Disallow: /api/ctftime*
