@@ -8,7 +8,11 @@ const TEAM_ID = '408704';
 const ctftime = await fetchCtftime(TEAM_ID);
 ---
 
-<Layout title="Ch0wn3rs - Elite Cybersecurity Club">
+<Layout
+  title="Ch0wn3rs - Elite Cybersecurity Club"
+  description="Ch0wn3rs is an elite cybersecurity focused on CTF competitions, ethical hacking, digital forensics, and practical security training."
+  image="/Logo-qr.jpeg"
+>
   <!-- Hero Section -->
   <section id="home" class="hero">
     <canvas id="circuitCanvas" class="hero-background"></canvas>
@@ -257,34 +261,10 @@ const ctftime = await fetchCtftime(TEAM_ID);
         });
       }
 
-      // Offensive Security: Target Lock Reticle Animation
-      document.querySelectorAll('.team-member').forEach(card => {
-        const reticles = card.querySelectorAll('.reticle');
-        
-        card.addEventListener('mouseenter', () => {
-          animate(reticles, {
-            scale: [1.2, 1],
-            opacity: [0, 1],
-            duration: 400,
-            easing: 'easeOutBack',
-            delay: stagger(50)
-          });
-        });
-
-        card.addEventListener('mouseleave', () => {
-          animate(reticles, {
-            scale: 1.2,
-            opacity: 0,
-            duration: 300,
-            easing: 'easeInQuad'
-          });
-        });
-      });
-
       // Phase 4: Specialized Reveals for All Members
       const REVEAL_LOGS: Record<string, string[]> = {
         crypto: [
-          '[+] INITIALIZING BRUTE FORCE ATTACK...',
+          '[+] INITIALIZING CRYPTO ANALYSIS...',
           '[!] DETECTING RSA-2048 KEY...',
           '[+] SCALE: 2^64 COMBINATIONS',
           '[+] RUNNING FREQUENCY ANALYSIS...',
@@ -294,14 +274,14 @@ const ctftime = await fetchCtftime(TEAM_ID);
         ai: [
           '[+] ACCESSING NEURAL INTERFACE...',
           '[!] BYPASSING SILICON SAFETY LIMITS...',
-          '[+] DUMPING MODEL WEIGHTS FROM SRAM...',
+          '[+] ANALYZING MODEL WEIGHTS FROM SRAM...',
           '[+] RECOVERING CLASSIFIER ENTROPY...',
           '[OK] BIOMETRIC OVERRIDE SUCCESSFUL',
           '[+] EXTRACTING IDENTITY VECTOR...'
         ],
         osint: [
           '[+] MAPPING DIGITAL FOOTPRINT...',
-          '[!] CRAWLING LSB STENO-DATA...',
+          '[!] PROCESSING LSB STENO-DATA...',
           '[+] ANALYZING SOCIAL GRAPH METADATA...',
           '[+] COORDINATES TRACED TO UPB_LAB_01',
           '[OK] ANONYMITY SHATTERED',
@@ -310,7 +290,7 @@ const ctftime = await fetchCtftime(TEAM_ID);
         reversing: [
           '[+] ATTACHING DEBUGGER TO PROCESS...',
           '[!] STACK OVERFLOW DETECTED AT 0x00401000',
-          '[+] DUMPING MEMORY ADDR: 0x' + Math.random().toString(16).substr(2, 8).toUpperCase(),
+          '[+] ANALYZING MEMORY ADDR: 0x' + Math.random().toString(16).substr(2, 8).toUpperCase(),
           '[!] BYPASSING DEP/ASLR...',
           '[OK] PAYLOAD DECRYPTED SUCCESSFULLY',
           '[+] EXTRACTING STRINGS...'
@@ -339,8 +319,9 @@ const ctftime = await fetchCtftime(TEAM_ID);
         const specialty = card.getAttribute('data-specialty') || 'reversing';
         const lines = REVEAL_LOGS[specialty] || REVEAL_LOGS.reversing;
         const content = card.querySelector('.terminal-content') as HTMLElement;
+        const overlay = card.querySelector('.terminal-overlay') as HTMLElement;
         
-        if (!content) return;
+        if (!content || !overlay) return;
 
         // Ensure card is visible (override .animate-card opacity: 0)
         card.style.opacity = '1';
@@ -365,10 +346,10 @@ const ctftime = await fetchCtftime(TEAM_ID);
           p.textContent = line;
           content.appendChild(p);
           
-          await new Promise(r => setTimeout(r, 80 + Math.random() * 100)); // Snappier timing
+          await new Promise(r => setTimeout(r, 120 + Math.random() * 140)); // Slightly longer timing
           p.classList.add('active');
           
-          if (line.includes('DUMPING') || line.includes('CRAWLING') || line.includes('BRUTE')) {
+          if (line.includes('ANALYZING') || line.includes('PROCESSING') || line.includes('INITIALIZING')) {
             const dump = document.createElement('div');
             dump.style.fontSize = '0.6rem';
             dump.style.opacity = '0.5';
@@ -381,8 +362,8 @@ const ctftime = await fetchCtftime(TEAM_ID);
         }
 
         // Final Flash
-        animate(content, {
-          backgroundColor: ['rgba(220, 20, 60, 0.4)', 'rgba(0, 0, 0, 0)'],
+        animate(overlay, {
+          backgroundColor: ['rgba(180, 180, 180, 0.22)', 'rgba(0, 0, 0, 0.95)'],
           duration: 400,
           easing: 'easeOutQuad'
         });
@@ -398,12 +379,8 @@ const ctftime = await fetchCtftime(TEAM_ID);
               scrambleText(el as HTMLElement);
             });
 
-            const emailEl = card.querySelector('[data-obfuscated]') as HTMLElement;
-            if (emailEl && !emailEl.classList.contains('revealed')) {
-               emailEl.click();
-            }
             resolve();
-          }, 300); // Shorter pause before next card
+          }, 500); // Slightly longer pause before reveal
         });
       }
 
@@ -411,7 +388,8 @@ const ctftime = await fetchCtftime(TEAM_ID);
         if (card.classList.contains('reversing-active')) return;
         
         const content = card.querySelector('.terminal-content') as HTMLElement;
-        if (!content) return;
+        const overlay = card.querySelector('.terminal-overlay') as HTMLElement;
+        if (!content || !overlay) return;
 
         card.classList.add('reversing-active');
         content.innerHTML = '<div class="terminal-line active">[+] SYNCHRONIZING DATA...</div>';
@@ -426,8 +404,8 @@ const ctftime = await fetchCtftime(TEAM_ID);
         }
 
         // Quick Flash pulse
-        animate(content, {
-          backgroundColor: ['rgba(220, 20, 60, 0.2)', 'rgba(0, 0, 0, 0)'],
+        animate(overlay, {
+          backgroundColor: ['rgba(180, 180, 180, 0.16)', 'rgba(0, 0, 0, 0.95)'],
           duration: 300,
           easing: 'easeOutQuad'
         });
@@ -438,68 +416,40 @@ const ctftime = await fetchCtftime(TEAM_ID);
         }, 500);
       }
 
-      // IntersectionObserver for Sequential Reveal & Smart Re-entry
+      // IntersectionObserver for simultaneous reveal & smart re-entry
       const teamSection = document.getElementById('team');
       if (teamSection) {
         let hasInitialized = false;
         
         const observer = new IntersectionObserver((entries) => {
           entries.forEach(async (entry) => {
-            if (entry.isIntersecting) {
+            if (entry.isIntersecting && entry.intersectionRatio >= 0.1) {
               const cards = Array.from(document.querySelectorAll('.reversing-card')) as HTMLElement[];
               
               if (!hasInitialized) {
-                // First time: Full Sequential Reveal
+                // First time: reveal all cards at once
                 hasInitialized = true;
-                observer.unobserve(entry.target); // Stop observing for FULL reveal
-                
-                for (const card of cards) {
-                  await runSpecializedReveal(card);
-                  await new Promise(r => setTimeout(r, 150));
-                }
-                
-                // Start observing again for PULSE reveal on re-entry
-                setTimeout(() => observer.observe(teamSection), 2000);
-              } else {
-                // Subsequent times: Pulse Scan
-                cards.forEach(card => runPulseScan(card));
+                observer.unobserve(entry.target);
+                await Promise.all(cards.map(card => runSpecializedReveal(card)));
+                observer.disconnect(); // Ensure the animation can run only once
               }
             }
           });
-        }, { threshold: 0.1 }); // Lower threshold for re-entry detection
+        }, {
+          threshold: [0.1],
+          rootMargin: '0px 0px 0px 0px'
+        }); // Start only when at least 10% of section is in view
         
         observer.observe(teamSection);
       }
 
       // Fallback: Still allow manual trigger on click if not already revealed
       document.querySelectorAll('.reversing-card').forEach(card => {
-        card.addEventListener('click', (e) => {
-          if (!(e.target as HTMLElement).hasAttribute('data-obfuscated')) {
-            runSpecializedReveal(card as HTMLElement);
-          }
+        card.addEventListener('click', () => {
+          runSpecializedReveal(card as HTMLElement);
         });
       });
 
-      /* 
-      // [PROPOSED: ANTI-SCRAPING] - Data reveal logic
-      document.querySelectorAll('[data-obfuscated]').forEach(el => {
-        el.addEventListener('click', function() {
-          const obfuscated = (this as HTMLElement).getAttribute('data-obfuscated');
-          if (obfuscated) {
-            const decoded = atob(obfuscated);
-            animate(this, {
-              opacity: [0, 1],
-              duration: 500,
-              ease: 'linear',
-              onBegin: () => {
-                this.textContent = decoded;
-                this.classList.add('revealed');
-              }
-            });
-          }
-        });
-      });
-      */
     });
   </script>
 
@@ -697,17 +647,7 @@ const ctftime = await fetchCtftime(TEAM_ID);
           <div class="member-avatar"><i class="ph ph-key"></i></div>
           <h3 itemprop="name" data-scramble>RIOS</h3>
           <p class="member-role" itemprop="jobTitle" data-scramble>CRYPTOGRAPHY</p>
-          <!-- [PROPOSED: SEO PROTECTION]
-          <div data-nosnippet>
-          -->
-            <p class="member-bio">Focused on solving <strong>cryptography</strong> challenges</p>
-          <!-- </div> -->
-          
-          <!-- [PROPOSED: ANTI-SCRAPING]
-          <div data-nosnippet>
-            <p class="member-email" data-obfuscated="cmlvc0BjaDB3bjNycy5uaW5qYQ==">Click to reveal</p>
-          </div>
-          -->
+          <p class="member-bio">Focused on solving <strong>cryptography</strong> challenges</p>
           <p class="member-email">rios@ch0wn3rs.ninja</p>
         </div>
 
@@ -724,17 +664,7 @@ const ctftime = await fetchCtftime(TEAM_ID);
           <div class="member-avatar"><i class="ph ph-brain"></i></div>
           <h3 itemprop="name" data-scramble>02loveslollipop</h3>
           <p class="member-role" itemprop="jobTitle" data-scramble>AI & HARDWARE</p>
-          <!-- [PROPOSED: SEO PROTECTION]
-          <div data-nosnippet>
-          -->
-            <p class="member-bio">Focused on solving <strong>AI & hardware</strong> challenges</p>
-          <!-- </div> -->
-          
-          <!-- [PROPOSED: ANTI-SCRAPING]
-          <div data-nosnippet>
-            <p class="member-email" data-obfuscated="emVyb3R3b0BjaDB3bjNycy5uaW5qYQ==">Click to reveal</p>
-          </div>
-          -->
+          <p class="member-bio">Focused on solving <strong>AI & hardware</strong> challenges</p>
           <p class="member-email">zerotwo@ch0wn3rs.ninja</p>
         </div>
 
@@ -751,17 +681,7 @@ const ctftime = await fetchCtftime(TEAM_ID);
           <div class="member-avatar"><i class="ph ph-binoculars"></i></div>
           <h3 itemprop="name" data-scramble>hrcamilo</h3>
           <p class="member-role" itemprop="jobTitle" data-scramble>STEGO & OSINT</p>
-          <!-- [PROPOSED: SEO PROTECTION]
-          <div data-nosnippet>
-          -->
-            <p class="member-bio">Focused on solving <strong>OSINT & stego</strong> challenges</p>
-          <!-- </div> -->
-          
-          <!-- [PROPOSED: ANTI-SCRAPING]
-          <div data-nosnippet>
-            <p class="member-email" data-obfuscated="aHJjYW1pbG9AY2gwd24zcnMubmluamE=">Click to reveal</p>
-          </div>
-          -->
+          <p class="member-bio">Focused on solving <strong>OSINT & stego</strong> challenges</p>
           <p class="member-email">hrcamilo@ch0wn3rs.ninja</p>
         </div>
 
@@ -778,17 +698,7 @@ const ctftime = await fetchCtftime(TEAM_ID);
           <div class="member-avatar"><i class="ph ph-gear"></i></div>
           <h3 itemprop="name" data-scramble>InfinityPaiin</h3>
           <p class="member-role" itemprop="jobTitle" data-scramble>REVERSING</p>
-          <!-- [PROPOSED: SEO PROTECTION]
-          <div data-nosnippet>
-          -->
-            <p class="member-bio">Focused on solving <strong>reversing</strong> challenges</p>
-          <!-- </div> -->
-          
-          <!-- [PROPOSED: ANTI-SCRAPING]
-          <div data-nosnippet>
-            <p class="member-email" data-obfuscated="aW5maW5pdHlwYWlpbkBjaDB3bjNycy5uaW5qYQ==">Click to reveal</p>
-          </div>
-          -->
+          <p class="member-bio">Focused on solving <strong>reversing</strong> challenges</p>
           <p class="member-email">infinitypaiin@ch0wn3rs.ninja</p>
         </div>
 
@@ -805,17 +715,7 @@ const ctftime = await fetchCtftime(TEAM_ID);
           <div class="member-avatar"><i class="ph ph-detective"></i></div>
           <h3 itemprop="name" data-scramble>Neyi21</h3>
           <p class="member-role" itemprop="jobTitle" data-scramble>FORENSICS</p>
-          <!-- [PROPOSED: SEO PROTECTION]
-          <div data-nosnippet>
-          -->
-            <p class="member-bio">Focused on solving <strong>forensics</strong> challenges</p>
-          <!-- </div> -->
-          
-          <!-- [PROPOSED: ANTI-SCRAPING]
-          <div data-nosnippet>
-            <p class="member-email" data-obfuscated="bmV5aTIxQGNoMHduM3JzLm5pbmph">Click to reveal</p>
-          </div>
-          -->
+          <p class="member-bio">Focused on solving <strong>forensics</strong> challenges</p>
           <p class="member-email">neyi21@ch0wn3rs.ninja</p>
         </div>
 
@@ -832,14 +732,7 @@ const ctftime = await fetchCtftime(TEAM_ID);
           <div class="member-avatar"><i class="ph ph-globe"></i></div>
           <h3 itemprop="name" data-scramble>Fu11shoot</h3>
           <p class="member-role" itemprop="jobTitle" data-scramble>PWN & WEB</p>
-          <div data-nosnippet>
-            <p class="member-bio">Focused on solving <strong>pwn & web</strong> challenges</p>
-          </div>
-          <!-- [PROPOSED: ANTI-SCRAPING]
-          <div data-nosnippet>
-            <p class="member-email" data-obfuscated="ZnU0MXNob290QGNoMHduM3JzLm5pbmph">Click to reveal</p>
-          </div>
-          -->
+          <p class="member-bio">Focused on solving <strong>pwn & web</strong> challenges</p>
           <p class="member-email">fu41shoot@ch0wn3rs.ninja</p>
         </div>
       </div>
@@ -998,7 +891,7 @@ const ctftime = await fetchCtftime(TEAM_ID);
     font-size: 1.3rem;
     color: white;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    animation: pulse 2s ease-in-out infinite;
+    animation: badge-pulse 2s ease-in-out infinite;
   }
   
   .best-badge i {
@@ -1377,7 +1270,7 @@ const ctftime = await fetchCtftime(TEAM_ID);
     font-weight: 500;
   }
   
-  @keyframes pulse {
+  @keyframes badge-pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.8; }
   }
@@ -2210,7 +2103,8 @@ const ctftime = await fetchCtftime(TEAM_ID);
   .team-member .member-avatar,
   .team-member h3,
   .team-member .member-role,
-  .team-member [data-nosnippet] {
+  .team-member .member-bio,
+  .team-member .member-email {
     opacity: 0;
     visibility: hidden; /* Prevent interaction and layout issues */
     transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -2219,7 +2113,8 @@ const ctftime = await fetchCtftime(TEAM_ID);
   .team-member.revealed .member-avatar,
   .team-member.revealed h3,
   .team-member.revealed .member-role,
-  .team-member.revealed [data-nosnippet] {
+  .team-member.revealed .member-bio,
+  .team-member.revealed .member-email {
     opacity: 1;
     visibility: visible;
   }
@@ -2232,21 +2127,13 @@ const ctftime = await fetchCtftime(TEAM_ID);
     opacity: 0;
     transition: all 0.3s ease;
     z-index: 5;
+    display: none;
   }
 
   .reticle-tl { top: 10px; left: 10px; }
   .reticle-tr { top: 10px; right: 10px; }
   .reticle-bl { bottom: 10px; left: 10px; }
   .reticle-br { bottom: 10px; right: 10px; }
-
-  .team-member:hover .reticle {
-    opacity: 1;
-  }
-
-  .team-member:hover .reticle-tl { transform: translate(-5px, -5px); }
-  .team-member:hover .reticle-tr { transform: translate(5px, -5px); }
-  .team-member:hover .reticle-bl { transform: translate(-5px, 5px); }
-  .team-member:hover .reticle-br { transform: translate(5px, 5px); }
 
   .team {
     position: relative;
@@ -2282,19 +2169,22 @@ const ctftime = await fetchCtftime(TEAM_ID);
     background: rgba(0, 0, 0, 0.95);
     z-index: 10;
     display: none; /* Hidden until triggered */
-    padding: 20px;
+    padding: 24px 20px 20px 26px;
+    text-align: left;
     font-family: 'Courier New', Courier, monospace;
     font-size: 0.8rem;
     color: var(--primary-red);
     overflow: hidden;
     pointer-events: none;
-    border: 1px solid var(--primary-red);
+    border: none;
   }
 
   .terminal-content {
     white-space: pre-wrap;
     word-break: break-all;
     height: 100%;
+    text-align: left;
+    padding-left: 0;
   }
 
   .scanline {

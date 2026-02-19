@@ -2,9 +2,38 @@
 interface Props {
   title: string;
   description?: string;
+  image?: string;
 }
 
-const { title, description = "Ch0wn3rs - Elite Cybersecurity Club" } = Astro.props;
+const {
+  title,
+  description = "Ch0wn3rs is an elite cybersecurity club focused on ethical hacking, CTF competitions, security research, and hands-on training.",
+  image = "/Logo-qr.jpeg"
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString();
+const ogImage = new URL(image, Astro.site ?? Astro.url).toString();
+const pageTitle = title.includes("Ch0wn3rs") ? title : `${title} | Ch0wn3rs`;
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Ch0wn3rs",
+  url: Astro.site ?? "https://ch0wn3rs.netlify.app",
+  logo: ogImage,
+  sameAs: [
+    "https://www.linkedin.com/company/ch0wn3rs/",
+    "https://www.instagram.com/ctf_upb",
+    "https://discord.gg/7kfEz7xQKp",
+    "https://ctftime.org/team/408704"
+  ]
+};
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Ch0wn3rs",
+  url: Astro.site ?? "https://ch0wn3rs.netlify.app",
+  description
+};
 ---
 
 <!DOCTYPE html>
@@ -15,10 +44,24 @@ const { title, description = "Ch0wn3rs - Elite Cybersecurity Club" } = Astro.pro
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content="Ch0wn3rs" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <title>{title}</title>
+    <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+    <title>{pageTitle}</title>
     <style>
       * {
         margin: 0;
@@ -365,7 +408,7 @@ const { title, description = "Ch0wn3rs - Elite Cybersecurity Club" } = Astro.pro
       </div>
     </nav>
 
-    <main data-nosnippet>
+    <main>
       <slot />
     </main>
 
