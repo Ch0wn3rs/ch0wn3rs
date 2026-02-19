@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ch0wn3rs.ninja/sitemap-index.xml
