@@ -1,4 +1,6 @@
 ---
+import SpeedInsights from '@vercel/speed-insights/astro';
+
 interface Props {
   title: string;
   description?: string;
@@ -475,5 +477,6 @@ const websiteSchema = {
       window.addEventListener('scroll', updateActiveNav);
       window.addEventListener('load', updateActiveNav);
     </script>
+    <SpeedInsights />
   </body>
 </html>
