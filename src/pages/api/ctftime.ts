@@ -1,17 +1,10 @@
-import { fetchCtftime } from '../../lib/ctftime';
+import { DEFAULT_TEAM_ID, fetchCtftime } from '../../lib/ctftime';
 
 export const prerender = false;
 
 export async function GET({ request }: { request: Request }) {
   const url = new URL(request.url);
-  const teamId = url.searchParams.get('teamId');
-
-  if (!teamId) {
-    return new Response(JSON.stringify({ error: 'Team ID is required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
+  const teamId = url.searchParams.get('teamId') ?? DEFAULT_TEAM_ID;
 
   try {
     const data = await fetchCtftime(teamId);
@@ -19,7 +12,7 @@ export async function GET({ request }: { request: Request }) {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=900'
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=900'
       }
     });
   } catch (err) {

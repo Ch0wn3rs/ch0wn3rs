@@ -94,6 +94,24 @@ Retorna las estadísticas del equipo desde CTFtime:
 - Rating actual
 - Años activos
 
+### Cache con Vercel Storage (Blob) + Cron
+
+Para evitar consultar CTFtime en cada request, el proyecto guarda un snapshot en Vercel Blob y lo refresca con Vercel Cron.
+
+Endpoints:
+
+```typescript
+GET /api/ctftime
+GET /api/cron/refresh-ctftime
+```
+
+Variables de entorno requeridas:
+
+```bash
+BLOB_READ_WRITE_TOKEN=...
+CRON_SECRET=...
+```
+
 ## 🎨 Características del Diseño
 
 - **Efecto Matrix**: Animación de fondo con canvas HTML5
@@ -104,16 +122,16 @@ Retorna las estadísticas del equipo desde CTFtime:
 
 ## 🚢 Despliegue
 
-El sitio está configurado para desplegarse en **Netlify**:
+El sitio está configurado para desplegarse en **Vercel**:
 
 ```bash
 # Build de producción
 npm run build
 
-# El directorio dist/ contendrá los archivos estáticos
+# Build de producción para Vercel
 ```
 
-URL del sitio: [https://ch0wn3rs.netlify.app](https://ch0wn3rs.netlify.app)
+URL del sitio: [https://ch0wn3rs.ninja](https://ch0wn3rs.ninja)
 
 ## 👥 Equipo
 

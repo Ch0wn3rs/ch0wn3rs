@@ -4,4 +4,4 @@ node_modules/*
 dist/*
 .vercel/
 .astro/
-#update to force deploy
+.env

@@ -38,6 +38,7 @@ Use existing libraries by default. Current approved runtime dependencies:
 - `astro`
 - `@astrojs/vercel`
 - `@astrojs/sitemap`
+- `@vercel/blob`
 - `animejs`
 - `@types/animejs`
 - `@phosphor-icons/web`
