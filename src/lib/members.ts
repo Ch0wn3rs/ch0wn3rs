@@ -64,7 +64,7 @@ export const teamMembers: TeamMember[] = [
     email: 'zerotwo@ch0wn3rs.ninja',
     avatarUrl: 'https://avatars.githubusercontent.com/u/88346508?v=4',
     fallbackIcon: 'ph-brain',
-    bio: 'Focused on solving AI and hardware challenges.',
+    bio: 'Just a ZeroTwo who loves lollipops and apparently CTF challenges.',
     specialties: ['ML', 'Crypto', 'Hardware', 'Infra', 'Founder'],
     joinDate: currentMemberJoinDate,
     joinDateLabel: currentMemberJoinDateLabel,
