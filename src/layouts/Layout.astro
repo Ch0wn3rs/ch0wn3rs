@@ -17,6 +17,8 @@ const {
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString();
 const ogImage = new URL(image, Astro.site ?? Astro.url).toString();
 const pageTitle = title.includes("Ch0wn3rs") ? title : `${title} | Ch0wn3rs`;
+const isHomePage = Astro.url.pathname === "/";
+const sectionHref = (id: string) => (isHomePage ? `#${id}` : `/#${id}`);
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -391,15 +393,15 @@ const websiteSchema = {
         <div class="nav-container">
           <ul class="nav-links" id="nav-links">
             <li class="nav-logo">
-              <a href="#home">
+              <a href={sectionHref("home")}>
                 <img src="/Logo-qr.jpeg" alt="ch0wn3rs">
               </a>
             </li>
-            <li><a href="#about" class="nav-link">About</a></li>
-            <li><a href="#services" class="nav-link">Services</a></li>
-            <li><a href="#team" class="nav-link">Team</a></li>
+            <li><a href={sectionHref("results")} class="nav-link">Competitions</a></li>
+            <li><a href={sectionHref("skills")} class="nav-link">Skills</a></li>
+            <li><a href="/members" class="nav-link">Team</a></li>
             <li class="nav-social">
-              <a href="#social" class="nav-link">Social</a>
+              <a href={sectionHref("social")} class="nav-link">Social</a>
             </li>
           </ul>
           

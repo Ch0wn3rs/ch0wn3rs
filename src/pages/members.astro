@@ -1,45 +1,682 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import '@phosphor-icons/web/regular';
+import { activeMembers, retiredMembers, type MemberSocialType, type MemberTag } from '../lib/members';
+
+const tagMeta: Record<MemberTag, { icon: string; className: string }> = {
+  Crypto: { icon: 'ph-lock-key', className: 'tag-crypto' },
+  PWN: { icon: 'ph-hammer', className: 'tag-pwn' },
+  Reversing: { icon: 'ph-puzzle-piece', className: 'tag-reversing' },
+  Web: { icon: 'ph-globe', className: 'tag-web' },
+  ML: { icon: 'ph-brain', className: 'tag-ml' },
+  Hardware: { icon: 'ph-cpu', className: 'tag-hardware' },
+  Misc: { icon: 'ph-question', className: 'tag-misc' },
+  Stego: { icon: 'ph-image-square', className: 'tag-stego' },
+  Forensic: { icon: 'ph-fingerprint', className: 'tag-forensic' },
+  OSINT: { icon: 'ph-binoculars', className: 'tag-osint' },
+  Blockchain: { icon: 'ph-coins', className: 'tag-blockchain' },
+  Founder: { icon: 'ph-crown', className: 'tag-founder' },
+  Infra: { icon: 'ph-network', className: 'tag-infra' },
+};
+
+const socialMeta: Record<MemberSocialType, { icon: string; external: boolean }> = {
+  github: { icon: 'ph-github-logo', external: true },
+  email: { icon: 'ph-envelope-simple', external: false },
+  website: { icon: 'ph-globe', external: true },
+  linkedin: { icon: 'ph-linkedin-logo', external: true },
+  x: { icon: 'ph-x-logo', external: true },
+};
+
+const sortByJoinDate = (a: { joinDate: string; name: string }, b: { joinDate: string; name: string }) =>
+  a.joinDate.localeCompare(b.joinDate) || a.name.localeCompare(b.name);
+
+const activeRoster = [...activeMembers].sort(sortByJoinDate);
+const retiredRoster = [...retiredMembers].sort(sortByJoinDate);
 ---
 
 <Layout
   title="Ch0wn3rs Members"
-  description="TODO: Member detail pages for the Ch0wn3rs team."
+  description="Current active players in the Ch0wn3rs competitive CTF team."
   image="/Logo-qr.jpeg"
 >
-  <section class="members-placeholder">
-    <div class="container">
-      <h1>Members</h1>
-      <p>TODO:</p>
+  <section class="members-page">
+    <div class="container members-shell">
+      <header class="members-header">
+        <p class="members-kicker">Team Directory</p>
+        <h1>Members</h1>
+        <p class="members-subtitle">Current active players in the team.</p>
+      </header>
+
+      <div class="members-toolbar">
+        <label class="members-toggle" for="showRetiredMembers">
+          <span>Show retired members</span>
+          <input id="showRetiredMembers" type="checkbox" />
+        </label>
+      </div>
+
+      <div class="members-table-shell">
+        <table class="members-table">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Specialties</th>
+              <th scope="col">
+                <span class="members-sort-label">
+                  Join Date
+                  <i class="ph ph-caret-up"></i>
+                </span>
+              </th>
+              <th scope="col">Socials</th>
+            </tr>
+          </thead>
+          <tbody>
+            {activeRoster.map((member) => (
+              <tr>
+                <td>
+                  <div class="member-identity">
+                    <div class="member-avatar member-avatar-table">
+                      <img
+                        src={member.avatarUrl}
+                        alt={`${member.name} avatar`}
+                        loading="lazy"
+                        onerror={`this.style.display='none';this.nextElementSibling.style.display='flex';`}
+                      />
+                      <span class="member-avatar-fallback" aria-hidden="true">
+                        <i class={`ph ${member.fallbackIcon}`}></i>
+                      </span>
+                    </div>
+
+                    <div class="member-copy">
+                      <p class="member-name">{member.name}</p>
+                      <p class="member-bio">{member.bio}</p>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="member-tags">
+                    {member.specialties.map((tag) => (
+                      <span class={`member-tag ${tagMeta[tag].className}`}>
+                        <i class={`ph ${tagMeta[tag].icon}`}></i>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </td>
+                <td class="member-join-cell">{member.joinDateLabel}</td>
+                <td>
+                  <div class="member-socials">
+                    {(member.socials ?? []).map((social) => (
+                      <a
+                        class="member-social-link"
+                        href={social.url}
+                        target={socialMeta[social.type].external ? '_blank' : undefined}
+                        rel={socialMeta[social.type].external ? 'noopener noreferrer' : undefined}
+                        aria-label={`${member.name} ${social.label}`}
+                      >
+                        <i class={`ph ${socialMeta[social.type].icon}`}></i>
+                      </a>
+                    ))}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tbody id="retiredMembersRows" hidden>
+            {retiredRoster.length > 0 ? (
+              retiredRoster.map((member) => (
+                <tr class="member-row-retired">
+                  <td>
+                    <div class="member-identity">
+                      <div class="member-avatar member-avatar-table">
+                        <img
+                          src={member.avatarUrl}
+                          alt={`${member.name} avatar`}
+                          loading="lazy"
+                          onerror={`this.style.display='none';this.nextElementSibling.style.display='flex';`}
+                        />
+                        <span class="member-avatar-fallback" aria-hidden="true">
+                          <i class={`ph ${member.fallbackIcon}`}></i>
+                        </span>
+                      </div>
+
+                      <div class="member-copy">
+                        <p class="member-name">{member.name}</p>
+                        <p class="member-bio">{member.bio}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="member-tags">
+                      {member.specialties.map((tag) => (
+                        <span class={`member-tag ${tagMeta[tag].className}`}>
+                          <i class={`ph ${tagMeta[tag].icon}`}></i>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td class="member-join-cell">{member.joinDateLabel}</td>
+                  <td>
+                    <div class="member-socials">
+                      {(member.socials ?? []).map((social) => (
+                        <a
+                          class="member-social-link"
+                          href={social.url}
+                          target={socialMeta[social.type].external ? '_blank' : undefined}
+                          rel={socialMeta[social.type].external ? 'noopener noreferrer' : undefined}
+                          aria-label={`${member.name} ${social.label}`}
+                        >
+                          <i class={`ph ${socialMeta[social.type].icon}`}></i>
+                        </a>
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr class="members-empty-row">
+                <td colspan="4">No retired members published yet.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="members-mobile-list">
+        {activeRoster.map((member) => (
+          <article class="member-card">
+            <div class="member-card-head">
+              <div class="member-avatar member-avatar-card">
+                <img
+                  src={member.avatarUrl}
+                  alt={`${member.name} avatar`}
+                  loading="lazy"
+                  onerror={`this.style.display='none';this.nextElementSibling.style.display='flex';`}
+                />
+                <span class="member-avatar-fallback" aria-hidden="true">
+                  <i class={`ph ${member.fallbackIcon}`}></i>
+                </span>
+              </div>
+
+              <div class="member-copy">
+                <p class="member-name">{member.name}</p>
+                <p class="member-bio">{member.bio}</p>
+              </div>
+            </div>
+
+            <div class="member-card-meta">
+              <span class="member-card-label">Join Date</span>
+              <span class="member-card-value">{member.joinDateLabel}</span>
+            </div>
+
+            <div class="member-tags">
+              {member.specialties.map((tag) => (
+                <span class={`member-tag ${tagMeta[tag].className}`}>
+                  <i class={`ph ${tagMeta[tag].icon}`}></i>
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            <div class="member-socials member-socials-mobile">
+              {(member.socials ?? []).map((social) => (
+                <a
+                  class="member-social-link"
+                  href={social.url}
+                  target={socialMeta[social.type].external ? '_blank' : undefined}
+                  rel={socialMeta[social.type].external ? 'noopener noreferrer' : undefined}
+                  aria-label={`${member.name} ${social.label}`}
+                >
+                  <i class={`ph ${socialMeta[social.type].icon}`}></i>
+                </a>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div class="members-mobile-list" id="retiredMembersCards" hidden>
+        {retiredRoster.length > 0 ? (
+          retiredRoster.map((member) => (
+            <article class="member-card member-card-retired">
+              <div class="member-card-head">
+                <div class="member-avatar member-avatar-card">
+                  <img
+                    src={member.avatarUrl}
+                    alt={`${member.name} avatar`}
+                    loading="lazy"
+                    onerror={`this.style.display='none';this.nextElementSibling.style.display='flex';`}
+                  />
+                  <span class="member-avatar-fallback" aria-hidden="true">
+                    <i class={`ph ${member.fallbackIcon}`}></i>
+                  </span>
+                </div>
+
+                <div class="member-copy">
+                  <p class="member-name">{member.name}</p>
+                  <p class="member-bio">{member.bio}</p>
+                </div>
+              </div>
+
+              <div class="member-card-meta">
+                <span class="member-card-label">Join Date</span>
+                <span class="member-card-value">{member.joinDateLabel}</span>
+              </div>
+
+              <div class="member-tags">
+                {member.specialties.map((tag) => (
+                  <span class={`member-tag ${tagMeta[tag].className}`}>
+                    <i class={`ph ${tagMeta[tag].icon}`}></i>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <div class="member-socials member-socials-mobile">
+                {(member.socials ?? []).map((social) => (
+                  <a
+                    class="member-social-link"
+                    href={social.url}
+                    target={socialMeta[social.type].external ? '_blank' : undefined}
+                    rel={socialMeta[social.type].external ? 'noopener noreferrer' : undefined}
+                    aria-label={`${member.name} ${social.label}`}
+                  >
+                    <i class={`ph ${socialMeta[social.type].icon}`}></i>
+                  </a>
+                ))}
+              </div>
+            </article>
+          ))
+        ) : (
+          <div class="members-empty-card">No retired members published yet.</div>
+        )}
+      </div>
     </div>
   </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggle = document.getElementById('showRetiredMembers');
+      const retiredRows = document.getElementById('retiredMembersRows');
+      const retiredCards = document.getElementById('retiredMembersCards');
+
+      if (!(toggle instanceof HTMLInputElement)) return;
+
+      const syncRetiredVisibility = () => {
+        const visible = toggle.checked;
+        if (retiredRows instanceof HTMLElement) retiredRows.hidden = !visible;
+        if (retiredCards instanceof HTMLElement) retiredCards.hidden = !visible;
+      };
+
+      toggle.addEventListener('change', syncRetiredVisibility);
+      syncRetiredVisibility();
+    });
+  </script>
 </Layout>
 
 <style>
-  .members-placeholder {
+  .members-page {
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 120px 20px 80px;
-    background: #000;
+    padding: 120px 20px 88px;
+    background:
+      radial-gradient(circle at top, rgba(220, 20, 60, 0.14), transparent 34%),
+      #000;
   }
 
-  .members-placeholder .container {
+  .members-shell {
+    width: min(100%, 1360px);
+    margin: 0 auto;
+    display: grid;
+    justify-items: center;
+  }
+
+  .members-header,
+  .members-toolbar,
+  .members-table-shell,
+  .members-mobile-list {
+    width: min(100%, 1160px);
+  }
+
+  .members-header {
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .members-kicker {
+    margin: 0 0 0.9rem;
+    color: var(--primary-red);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.78rem;
+  }
+
+  .members-header h1 {
+    margin: 0;
+    color: var(--white);
+    font-size: clamp(2.5rem, 6vw, 5.2rem);
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+
+  .members-subtitle {
+    margin: 1rem 0 0;
+    max-width: 42rem;
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 1.05rem;
+  }
+
+  .members-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    padding: 1.5rem 0 1rem;
+  }
+
+  .members-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.95rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .members-toggle input {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--primary-red);
+  }
+
+  .members-table-shell {
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    background: rgba(26, 26, 26, 0.94);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+  }
+
+  .members-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .members-table thead th {
+    padding: 1.15rem 1.35rem;
+    text-align: left;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .members-sort-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .members-sort-label i {
+    color: var(--primary-red);
+    font-size: 0.9rem;
+  }
+
+  .members-table tbody tr {
+    transition: background-color 0.25s ease;
+  }
+
+  .members-table tbody tr:hover {
+    background: rgba(220, 20, 60, 0.05);
+  }
+
+  .members-table tbody td {
+    padding: 1.3rem 1.35rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    vertical-align: top;
+  }
+
+  .members-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .member-identity {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+  }
+
+  .member-copy {
+    min-width: 0;
+  }
+
+  .member-name {
+    margin: 0;
+    color: var(--white);
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+
+  .member-bio {
+    margin: 0.35rem 0 0;
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+
+  .member-join-cell {
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.82);
+    font-weight: 600;
+  }
+
+  .member-avatar {
+    position: relative;
+    flex: 0 0 auto;
+    overflow: hidden;
+    background: rgba(7, 8, 14, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+  }
+
+  .member-avatar-table {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+  }
+
+  .member-avatar-card {
+    width: 88px;
+    height: 88px;
+    border-radius: 18px;
+  }
+
+  .member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .member-avatar-fallback {
+    display: none;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-red);
+    background: rgba(7, 8, 14, 0.96);
+  }
+
+  .member-avatar-fallback i {
+    font-size: 1.5rem;
+  }
+
+  .member-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .member-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(var(--tag-rgb), 0.28);
+    background: rgba(var(--tag-rgb), 0.16);
+    color: rgb(var(--tag-rgb));
+    font-size: 0.88rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .member-tag i {
+    font-size: 0.95rem;
+  }
+
+  .tag-crypto { --tag-rgb: 225, 156, 17; }
+  .tag-pwn { --tag-rgb: 220, 20, 60; }
+  .tag-reversing { --tag-rgb: 242, 101, 34; }
+  .tag-web { --tag-rgb: 54, 144, 232; }
+  .tag-ml { --tag-rgb: 155, 89, 255; }
+  .tag-hardware { --tag-rgb: 112, 111, 211; }
+  .tag-misc { --tag-rgb: 182, 61, 215; }
+  .tag-stego { --tag-rgb: 45, 184, 117; }
+  .tag-forensic { --tag-rgb: 18, 170, 133; }
+  .tag-osint { --tag-rgb: 108, 122, 137; }
+  .tag-blockchain { --tag-rgb: 36, 167, 214; }
+  .tag-founder { --tag-rgb: 255, 204, 72; }
+  .tag-infra { --tag-rgb: 255, 106, 106; }
+
+  .member-socials {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .member-social-link {
+    width: 2.1rem;
+    height: 2.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.86);
+    border-radius: 50%;
+    text-decoration: none;
+    transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .member-social-link:hover {
+    color: var(--primary-red);
+    background: rgba(220, 20, 60, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .member-social-link i {
+    font-size: 1.2rem;
+  }
+
+  .members-empty-row td,
+  .members-empty-card {
+    padding: 1.5rem;
+    color: rgba(255, 255, 255, 0.64);
     text-align: center;
   }
 
-  .members-placeholder h1 {
-    margin: 0 0 1rem;
-    color: var(--primary-red);
-    font-size: clamp(2.4rem, 6vw, 4.2rem);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+  .members-mobile-list {
+    display: none;
   }
 
-  .members-placeholder p {
-    margin: 0;
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 1.1rem;
+  .member-card {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 1.2rem;
+    background: rgba(26, 26, 26, 0.94);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+  }
+
+  .member-card-retired {
+    opacity: 0.82;
+  }
+
+  .member-card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .member-card-meta {
+    margin: 1rem 0 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.95rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .member-card-label {
+    color: rgba(255, 255, 255, 0.52);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.7rem;
+  }
+
+  .member-card-value {
+    color: rgba(255, 255, 255, 0.84);
+    font-weight: 700;
+  }
+
+  .member-socials-mobile {
+    margin-top: 1rem;
+    padding-top: 0.95rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  @media (max-width: 960px) {
+    .members-page {
+      padding-top: 108px;
+    }
+
+    .members-table-shell {
+      display: none;
+    }
+
+    .members-mobile-list {
+      display: grid;
+      gap: 1rem;
+    }
+
+    #retiredMembersCards[hidden] {
+      display: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .members-page {
+      padding: 102px 12px 72px;
+    }
+
+    .members-shell {
+      padding: 0 8px;
+    }
+
+    .members-header {
+      padding-bottom: 2rem;
+    }
+
+    .members-toolbar {
+      justify-content: flex-start;
+    }
+
+    .members-toggle {
+      font-size: 0.9rem;
+    }
+
+    .member-card-head {
+      flex-direction: column;
+    }
   }
 </style>
