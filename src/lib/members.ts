@@ -136,7 +136,7 @@ export const teamMembers: TeamMember[] = [
     joinDate: currentMemberJoinDate,
     joinDateLabel: currentMemberJoinDateLabel,
     socials: [
-      { type: 'github', url: 'https://github.com/TomasGutierrezO', label: 'GitHub' },
+      { type: 'github', url: 'https://github.com/TomasGutierrezOrozco', label: 'GitHub' },
       { type: 'email', url: 'mailto:fu11shoot@ch0wn3rs.ninja', label: 'Email' },
       { type: 'linkedin', url: 'https://www.linkedin.com/in/tom%C3%A1s-guti%C3%A9rrez-orozco-74ba09328/', label: 'LinkedIn' },
       { type: 'website', url: 'https://www.fu11shoot.com', label: 'Website' },
