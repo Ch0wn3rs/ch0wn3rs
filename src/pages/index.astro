@@ -7,6 +7,83 @@ import { animate, stagger } from 'animejs';
 const TEAM_ID = '408704';
 const ctftime = await fetchCtftime(TEAM_ID);
 const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
+const skillSpecialties = [
+  {
+    slug: 'crypto',
+    title: 'Crypto',
+    icon: 'ph-key',
+    description: 'We focus on cryptographic systems by attacking weak randomness, analyzing classical and modern constructions, and breaking implementations under real CTF constraints.',
+    items: ['PRNG cryptanalysis', 'SP-networks', 'ECDSA', 'Frequency analysis'],
+  },
+  {
+    slug: 'web',
+    title: 'Web',
+    icon: 'ph-globe',
+    description: 'Our web playbook centers on input-driven vulnerabilities, parser abuse, and application logic weaknesses that reliably show up in offensive web challenges.',
+    items: ['SQLi', 'XSS', 'XXE', 'NoSQLi', 'Padding Oracle'],
+  },
+  {
+    slug: 'forensic',
+    title: 'Forensic',
+    icon: 'ph-detective',
+    description: 'We recover traces from filesystems, packets, documents, and operating system artifacts to rebuild timelines and surface the evidence hidden in challenge data.',
+    items: [
+      'Metadata analysis',
+      'Disk forensics',
+      'Log analysis',
+      'Packet analysis (PCAP)',
+      'Document forensics',
+      'Image forensics',
+      'Registry forensics',
+      'USB/device forensics',
+    ],
+  },
+  {
+    slug: 'adversarial-ml',
+    title: 'Adversarial ML',
+    icon: 'ph-brain',
+    description: 'We work on machine learning model evasion and LLM misuse by probing model behavior, crafting adversarial inputs, and exploiting prompt-handling weaknesses.',
+    items: ['Adversarial examples', 'Black-box query-based evasion', 'Prompt injection/leaking'],
+  },
+];
+const teamMembers = [
+  {
+    name: 'RIOS',
+    email: 'rios@ch0wn3rs.ninja',
+    avatarUrl: 'https://github.com/rios.png?size=240',
+    fallbackIcon: 'ph-key',
+  },
+  {
+    name: '02loveslollipop',
+    email: 'zerotwo@ch0wn3rs.ninja',
+    avatarUrl: 'https://avatars.githubusercontent.com/u/88346508?v=4',
+    fallbackIcon: 'ph-brain',
+  },
+  {
+    name: 'hrcamilo',
+    email: 'hrcamilo@ch0wn3rs.ninja',
+    avatarUrl: 'https://avatars.githubusercontent.com/u/58581298?v=4',
+    fallbackIcon: 'ph-binoculars',
+  },
+  {
+    name: 'InfinityPaiin',
+    email: 'infinitypaiin@ch0wn3rs.ninja',
+    avatarUrl: 'https://avatars.githubusercontent.com/u/29224671?v=4',
+    fallbackIcon: 'ph-gear',
+  },
+  {
+    name: 'Neyi21',
+    email: 'neyi21@ch0wn3rs.ninja',
+    avatarUrl: 'https://avatars.githubusercontent.com/u/148889113?v=4',
+    fallbackIcon: 'ph-detective',
+  },
+  {
+    name: 'Fu11shoot',
+    email: 'fu11shoot@ch0wn3rs.ninja',
+    avatarUrl: 'https://avatars.githubusercontent.com/u/97989125?v=4',
+    fallbackIcon: 'ph-globe',
+  },
+];
 ---
 
 <Layout
@@ -96,12 +173,14 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
   </section>
 
   <script>
+    import { animate } from 'animejs';
     import { initGlobe, initMatrixCanvas } from '../lib/hero-effects';
 
     let cleanupGlobe;
     let cleanupMatrix;
     let cleanupResultsGlobe;
     let cleanupIntroScene;
+    let cleanupSkillsDialog;
 
     function initIntroScene() {
       const scene = document.querySelector('.hero');
@@ -329,16 +408,126 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
       };
     }
 
+    function initSkillsDialog() {
+      const skillsSection = document.getElementById('skills');
+      const dialog = document.getElementById('skillsDialog');
+      const dialogBody = document.getElementById('skillsDialogBody');
+      const triggers = Array.from(document.querySelectorAll('.skill-card[data-skill-target]'));
+
+      if (!(skillsSection instanceof HTMLElement && dialog instanceof HTMLElement && dialogBody instanceof HTMLElement) || triggers.length === 0) {
+        return undefined;
+      }
+
+      const closeControls = Array.from(dialog.querySelectorAll('[data-skill-close]'));
+      let activeTrigger = null;
+      let cleanupDialogGlobe;
+      const originalParent = dialog.parentElement;
+      document.body.appendChild(dialog);
+
+      const openDialog = (slug, trigger) => {
+        const source = document.getElementById(`skill-source-${slug}`);
+        if (!(source instanceof HTMLElement)) return;
+
+        cleanupDialogGlobe?.();
+        activeTrigger = trigger instanceof HTMLElement ? trigger : null;
+        dialogBody.innerHTML = source.innerHTML;
+        dialog.hidden = false;
+        document.body.style.overflow = 'hidden';
+        skillsSection.classList.add('skills-dialog-active');
+        dialog.classList.add('is-open');
+
+        const globeCanvas = dialogBody.querySelector('.skills-dialog-globe');
+        if (globeCanvas instanceof HTMLCanvasElement) {
+          globeCanvas.id = 'skillsDialogGlobeCanvas';
+          cleanupDialogGlobe = initGlobe('skillsDialogGlobeCanvas', { tiltDegrees: 18 });
+        }
+
+        animate(dialogBody.querySelectorAll('.skills-dialog-sidebar, .skills-dialog-visual'), {
+          opacity: [0, 1],
+          translateY: [20, 0],
+          delay: (_, index) => index * 90,
+          duration: 540,
+          ease: 'outExpo'
+        });
+      };
+
+      const closeDialog = () => {
+        if (dialog.hidden) return;
+        cleanupDialogGlobe?.();
+        cleanupDialogGlobe = undefined;
+        dialog.classList.remove('is-open');
+        skillsSection.classList.remove('skills-dialog-active');
+        dialog.hidden = true;
+        dialogBody.innerHTML = '';
+        document.body.style.overflow = '';
+
+        if (activeTrigger instanceof HTMLElement) {
+          activeTrigger.focus();
+        }
+
+        activeTrigger = null;
+      };
+
+      const onTriggerClick = (event) => {
+        const trigger = event.currentTarget;
+        if (!(trigger instanceof HTMLElement)) return;
+        openDialog(trigger.dataset.skillTarget, trigger);
+      };
+
+      const onTriggerKeyDown = (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+
+        const trigger = event.currentTarget;
+        if (!(trigger instanceof HTMLElement)) return;
+        openDialog(trigger.dataset.skillTarget, trigger);
+      };
+
+      const onCloseClick = () => {
+        closeDialog();
+      };
+
+      const onDocumentKeyDown = (event) => {
+        if (event.key === 'Escape') {
+          closeDialog();
+        }
+      };
+
+      triggers.forEach((trigger) => {
+        trigger.addEventListener('click', onTriggerClick);
+        trigger.addEventListener('keydown', onTriggerKeyDown);
+      });
+      closeControls.forEach((control) => control.addEventListener('click', onCloseClick));
+      document.addEventListener('keydown', onDocumentKeyDown);
+
+      return () => {
+        triggers.forEach((trigger) => {
+          trigger.removeEventListener('click', onTriggerClick);
+          trigger.removeEventListener('keydown', onTriggerKeyDown);
+        });
+        closeControls.forEach((control) => control.removeEventListener('click', onCloseClick));
+        document.removeEventListener('keydown', onDocumentKeyDown);
+        document.body.style.overflow = '';
+        skillsSection.classList.remove('skills-dialog-active');
+        cleanupDialogGlobe?.();
+        if (originalParent instanceof HTMLElement && dialog.parentElement !== originalParent) {
+          originalParent.appendChild(dialog);
+        }
+      };
+    }
+
     window.addEventListener('load', () => {
       cleanupMatrix?.();
       cleanupGlobe?.();
       cleanupResultsGlobe?.();
       cleanupIntroScene?.();
+      cleanupSkillsDialog?.();
 
       cleanupMatrix = initMatrixCanvas('matrixCanvas');
       cleanupGlobe = initGlobe('globeCanvas');
       cleanupResultsGlobe = initGlobe('resultsGlobeCanvas', { tiltDegrees: 24 });
       cleanupIntroScene = initIntroScene();
+      cleanupSkillsDialog = initSkillsDialog();
     });
 
     window.addEventListener('beforeunload', () => {
@@ -346,6 +535,7 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
       cleanupGlobe?.();
       cleanupResultsGlobe?.();
       cleanupIntroScene?.();
+      cleanupSkillsDialog?.();
     });
   </script>
 
@@ -745,114 +935,100 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
     </div>
   </section>
 
+    <!-- Skills Section -->
+    <section id="skills" class="skills">
+    <div class="container">
+      <h2 class="section-title">Skills</h2>
+      <div class="skills-grid">
+        {skillSpecialties.map((skill) => (
+          <article
+            class="skill-card"
+            tabindex="0"
+            role="button"
+            data-skill-target={skill.slug}
+            aria-haspopup="dialog"
+            aria-controls="skillsDialog"
+          >
+            <div class="skill-card-header">
+              <i class={`ph ${skill.icon}`}></i>
+              <h3>{skill.title}</h3>
+            </div>
+            <p class="skill-card-summary">{skill.description}</p>
+          </article>
+        ))}
+      </div>
+
+      <div class="skills-dialog" id="skillsDialog" hidden>
+        <div class="skills-dialog-backdrop" data-skill-close></div>
+        <div
+          class="skills-dialog-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Skill details"
+        >
+          <button class="skills-dialog-close" type="button" aria-label="Close skills popup" data-skill-close>
+            <i class="ph ph-x"></i>
+          </button>
+          <div class="skills-dialog-body" id="skillsDialogBody"></div>
+        </div>
+      </div>
+
+      <div class="skills-dialog-sources" hidden>
+        {skillSpecialties.map((skill) => (
+          <article class="skills-dialog-source" id={`skill-source-${skill.slug}`}>
+            <div class="skills-dialog-layout">
+              <aside class="skills-dialog-sidebar">
+                <div class="skill-card-header skills-dialog-header">
+                  <i class={`ph ${skill.icon}`}></i>
+                  <h3>{skill.title}</h3>
+                </div>
+                <ul class="skill-details">
+                  {skill.items.map((item) => <li>{item}</li>)}
+                </ul>
+              </aside>
+
+              <div class="skills-dialog-visual">
+                <div class="skills-dialog-visual-stage">
+                  <!-- TODO: Replace the placeholder globe with a category-specific Anime.js scene. -->
+                  <canvas class="skills-dialog-globe" aria-hidden="true"></canvas>
+                </div>
+                <div class="skills-dialog-copy">
+                  <p>{skill.description}</p>
+                </div>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
     <!-- Team Section -->
     <section id="team" class="team">
     <div class="binary-stream" id="binaryStream"></div>
     <div class="container">
       <h2 class="section-title">Meet The Team</h2>
       <div class="team-grid">
-        <div class="team-member animate-card reversing-card" data-specialty="crypto" itemscope itemtype="https://schema.org/Person">
-          <div class="terminal-overlay">
-            <div class="terminal-content"></div>
-            <div class="scanline"></div>
-          </div>
-          <!-- Target Reticle SVGs -->
-          <div class="reticle reticle-tl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 20 L 0 0 L 20 0" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-tr"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 20 0 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-bl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 0 20 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-br"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 20 0 L 20 20 L 0 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-
-          <div class="member-avatar"><i class="ph ph-key"></i></div>
-          <h3 itemprop="name" data-scramble>RIOS</h3>
-          <p class="member-role" itemprop="jobTitle" data-scramble>CRYPTOGRAPHY</p>
-          <p class="member-bio">Focused on solving <strong>cryptography</strong> challenges</p>
-          <p class="member-email">rios@ch0wn3rs.ninja</p>
-        </div>
-
-        <div class="team-member animate-card reversing-card" data-specialty="ai" itemscope itemtype="https://schema.org/Person">
-          <div class="terminal-overlay">
-            <div class="terminal-content"></div>
-            <div class="scanline"></div>
-          </div>
-          <div class="reticle reticle-tl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 20 L 0 0 L 20 0" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-tr"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 20 0 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-bl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 0 20 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-br"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 20 0 L 20 20 L 0 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-
-          <div class="member-avatar"><i class="ph ph-brain"></i></div>
-          <h3 itemprop="name" data-scramble>02loveslollipop</h3>
-          <p class="member-role" itemprop="jobTitle" data-scramble>AI & HARDWARE</p>
-          <p class="member-bio">Focused on solving <strong>AI & hardware</strong> challenges</p>
-          <p class="member-email">zerotwo@ch0wn3rs.ninja</p>
-        </div>
-
-        <div class="team-member animate-card reversing-card" data-specialty="osint" itemscope itemtype="https://schema.org/Person">
-          <div class="terminal-overlay">
-            <div class="terminal-content"></div>
-            <div class="scanline"></div>
-          </div>
-          <div class="reticle reticle-tl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 20 L 0 0 L 20 0" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-tr"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 20 0 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-bl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 0 20 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-br"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 20 0 L 20 20 L 0 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-
-          <div class="member-avatar"><i class="ph ph-binoculars"></i></div>
-          <h3 itemprop="name" data-scramble>hrcamilo</h3>
-          <p class="member-role" itemprop="jobTitle" data-scramble>STEGO & OSINT</p>
-          <p class="member-bio">Focused on solving <strong>OSINT & stego</strong> challenges</p>
-          <p class="member-email">hrcamilo@ch0wn3rs.ninja</p>
-        </div>
-
-        <div class="team-member animate-card reversing-card" data-specialty="reversing" itemscope itemtype="https://schema.org/Person">
-          <div class="terminal-overlay">
-            <div class="terminal-content"></div>
-            <div class="scanline"></div>
-          </div>
-          <div class="reticle reticle-tl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 20 L 0 0 L 20 0" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-tr"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 20 0 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-bl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 0 20 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-br"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 20 0 L 20 20 L 0 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-
-          <div class="member-avatar"><i class="ph ph-gear"></i></div>
-          <h3 itemprop="name" data-scramble>InfinityPaiin</h3>
-          <p class="member-role" itemprop="jobTitle" data-scramble>REVERSING</p>
-          <p class="member-bio">Focused on solving <strong>reversing</strong> challenges</p>
-          <p class="member-email">infinitypaiin@ch0wn3rs.ninja</p>
-        </div>
-
-        <div class="team-member animate-card reversing-card" data-specialty="forensics" itemscope itemtype="https://schema.org/Person">
-          <div class="terminal-overlay">
-            <div class="terminal-content"></div>
-            <div class="scanline"></div>
-          </div>
-          <div class="reticle reticle-tl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 20 L 0 0 L 20 0" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-tr"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 20 0 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-bl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 0 20 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-br"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 20 0 L 20 20 L 0 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-
-          <div class="member-avatar"><i class="ph ph-detective"></i></div>
-          <h3 itemprop="name" data-scramble>Neyi21</h3>
-          <p class="member-role" itemprop="jobTitle" data-scramble>FORENSICS</p>
-          <p class="member-bio">Focused on solving <strong>forensics</strong> challenges</p>
-          <p class="member-email">neyi21@ch0wn3rs.ninja</p>
-        </div>
-
-        <div class="team-member animate-card reversing-card" data-specialty="pwn" itemscope itemtype="https://schema.org/Person">
-          <div class="terminal-overlay">
-            <div class="terminal-content"></div>
-            <div class="scanline"></div>
-          </div>
-          <div class="reticle reticle-tl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 20 L 0 0 L 20 0" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-tr"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 20 0 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-bl"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 0 0 L 0 20 L 20 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-          <div class="reticle reticle-br"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M 20 0 L 20 20 L 0 20" fill="none" stroke="currentColor" stroke-width="1"/></svg></div>
-
-          <div class="member-avatar"><i class="ph ph-globe"></i></div>
-          <h3 itemprop="name" data-scramble>Fu11shoot</h3>
-          <p class="member-role" itemprop="jobTitle" data-scramble>PWN & WEB</p>
-          <p class="member-bio">Focused on solving <strong>pwn & web</strong> challenges</p>
-          <p class="member-email">fu11shoot@ch0wn3rs.ninja</p>
-        </div>
+        {teamMembers.map((member) => (
+          <a class="team-member team-member-link" href="/members" itemscope itemtype="https://schema.org/Person">
+            <div class="member-avatar member-avatar-image">
+              <img
+                src={member.avatarUrl}
+                alt={`${member.name} avatar`}
+                loading="lazy"
+                onerror={`this.style.display='none';this.nextElementSibling.style.display='flex';`}
+              />
+              <span class="member-avatar-fallback" aria-hidden="true">
+                <i class={`ph ${member.fallbackIcon}`}></i>
+              </span>
+            </div>
+            <h3 itemprop="name">{member.name}</h3>
+            <p class="member-email">{member.email}</p>
+          </a>
+        ))}
+      </div>
+      <div class="team-actions">
+        <a class="team-view-all" href="/members">View all</a>
       </div>
     </div>
   </section>
@@ -936,8 +1112,8 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 ch0wn3rs. All rights reserved. | <span class="footer-warning"><i class="ph ph-shield-warning"></i> Ethical Hacking Only</span></p>
-        <p class="footer-subtitle">Colombia's #1 CTF Team | Cultivating the next generation of cybersecurity professionals</p>
+        <p>&copy; 2026 ch0wn3rs. All rights reserved. | Designed by ゼロツー | <span class="footer-warning"><i class="ph ph-shield-warning"></i> Ethical Hacking Only</span></p>
+        <p class="footer-subtitle">Colombia's #1 CTF Team | In pursuit of cybersecurity excellence</p>
       </div>
     </div>
   </footer>
@@ -1069,10 +1245,10 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
   
   .stats-card {
     background: rgba(0, 0, 0, 0.8);
-    border: 2px solid var(--primary-red);
-    border-radius: 12px;
+    border: 1px solid rgba(220, 20, 60, 0.35);
+    border-radius: 18px;
     padding: 2rem;
-    box-shadow: 0 0 40px rgba(220, 20, 60, 0.3);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
     backdrop-filter: blur(10px);
   }
   
@@ -1548,7 +1724,7 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
     justify-content: center;
     overflow: hidden;
     border-radius: 50%;
-    background: linear-gradient(180deg, rgba(19, 21, 35, 0.96), rgba(3, 4, 11, 0.96));
+    background: rgba(26, 26, 26, 0.96);
     border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: 0 0 0 6px rgba(3, 3, 10, 0.92), 0 14px 30px rgba(0, 0, 0, 0.35);
   }
@@ -1568,7 +1744,7 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
     position: relative;
     padding: 1.45rem 1.55rem;
     border-radius: 18px;
-    background: rgba(3, 3, 12, 0.94);
+    background: rgba(26, 26, 26, 0.94);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
     transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
@@ -1590,7 +1766,7 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
   .result-title {
     display: inline-block;
     margin-bottom: 1rem;
-    color: #ff748e;
+    color: var(--primary-red);
     text-decoration: none;
     font-size: clamp(1.1rem, 2vw, 1.65rem);
     font-weight: 700;
@@ -1599,7 +1775,7 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
   }
 
   .result-title:hover {
-    color: #ff98aa;
+    color: #ff4b69;
   }
 
   .result-rank-pill {
@@ -1647,27 +1823,27 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
   }
 
   .result-point-chip-ctf {
-    background: rgba(27, 35, 56, 0.92);
-    color: #ffe0e5;
+    background: rgba(48, 24, 31, 0.92);
+    color: #ffe6eb;
   }
 
   .result-point-chip-ctf i {
-    color: #ff5a7b;
+    color: var(--primary-red);
   }
 
   .result-point-chip-rating {
-    background: rgba(9, 49, 72, 0.92);
-    color: #d7f4ff;
+    background: rgba(48, 24, 31, 0.92);
+    color: #ffe6eb;
   }
 
   .result-point-chip-rating i {
-    color: #4fd4ff;
+    color: var(--primary-red);
   }
 
   .result-empty {
     padding: 1.35rem 1.5rem;
     border-radius: 18px;
-    background: rgba(3, 3, 12, 0.94);
+    background: rgba(26, 26, 26, 0.94);
     border: 1px dashed rgba(220, 20, 60, 0.3);
     color: rgba(255, 255, 255, 0.68);
     margin-left: 4.75rem;
@@ -1797,7 +1973,7 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
   }
   
   .service-card {
-    background: rgba(3, 3, 12, 0.94);
+    background: rgba(26, 26, 26, 0.94);
     padding: 2rem;
     border-radius: 18px;
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1838,12 +2014,12 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
   }
 
   .service-icon i {
-    color: #ff5a7b;
+    color: var(--primary-red);
     font-size: 3rem;
   }
   
   .service-card h3 {
-    color: #ff748e;
+    color: var(--primary-red);
     margin-bottom: 1rem;
     font-size: 1.3rem;
   }
@@ -1857,6 +2033,230 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
     text-decoration: none;
     color: inherit;
     cursor: pointer;
+  }
+
+  /* Skills Section */
+  .skills {
+    position: relative;
+    z-index: 1;
+    padding: 100px 20px;
+    background-color: transparent;
+    margin: 20px 0;
+  }
+
+  .skills.skills-dialog-active {
+    z-index: 25;
+  }
+
+  .skills .container {
+    max-width: 1480px;
+    margin: 0 auto;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .skill-card {
+    background: rgba(26, 26, 26, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+    padding: 1.35rem;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .skill-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(220, 20, 60, 0.45);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.42);
+  }
+
+  .skill-card:focus-visible {
+    outline: 2px solid rgba(220, 20, 60, 0.65);
+    outline-offset: 4px;
+  }
+
+  .skill-card-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.15rem;
+    margin-bottom: 0;
+    text-align: center;
+  }
+
+  .skill-card-header i {
+    color: var(--primary-red);
+    font-size: 3.8rem;
+  }
+
+  .skill-card h3 {
+    margin: 0;
+    color: var(--primary-red);
+    font-size: 1.55rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    line-height: 1.15;
+  }
+
+  .skill-card-summary {
+    margin: 1.1rem 0 0;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.92rem;
+    line-height: 1.55;
+    text-align: center;
+  }
+
+  .skills .skill-details {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+  }
+
+  .skills .skill-details li {
+    padding: 0.15rem 0 0.15rem 1.15rem;
+    font-size: 0.84rem;
+    line-height: 1.45;
+  }
+
+  .skills-dialog[hidden] {
+    display: none;
+  }
+
+  .skills-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: grid;
+    place-items: center;
+    padding: 1.5rem;
+  }
+
+  .skills-dialog-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(8px);
+  }
+
+  .skills-dialog-panel {
+    position: relative;
+    z-index: 1;
+    width: min(75vw, 1200px);
+    height: min(75vh, 820px);
+    overflow: hidden;
+    background: rgba(26, 26, 26, 0.96);
+    border: 1px solid rgba(220, 20, 60, 0.28);
+    border-radius: 22px;
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.56);
+    padding: 1rem;
+  }
+
+  .skills-dialog-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 3;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid rgba(220, 20, 60, 0.28);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--primary-red);
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .skills-dialog-close i {
+    font-size: 1.1rem;
+  }
+
+  .skills-dialog-body {
+    height: 100%;
+    padding-top: 0.25rem;
+  }
+
+  .skills-dialog-layout {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.34fr) minmax(0, 1fr);
+    height: 100%;
+    min-height: 0;
+  }
+
+  .skills-dialog-sidebar {
+    padding: 1.5rem 1.35rem 1.5rem 1rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: auto;
+  }
+
+  .skills-dialog-visual {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .skills-dialog-visual-stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .skills-dialog-globe {
+    width: min(100%, 480px);
+    height: min(100%, 480px);
+    opacity: 0.58;
+  }
+
+  .skills-dialog-copy {
+    padding: 1.25rem 1.5rem 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .skills-dialog-copy p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.94);
+    line-height: 1.75;
+  }
+
+  .skills-dialog-header {
+    flex-direction: row;
+    margin-right: 0;
+    margin-bottom: 1.5rem;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .skills-dialog-body .skill-details {
+    gap: 0.75rem;
+  }
+
+  .skills-dialog-body .skill-details li {
+    font-size: 0.98rem;
+    padding: 0.2rem 0 0.2rem 1.25rem;
+  }
+
+  @media (max-width: 1280px) {
+    .skills-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   /* Team Section */
@@ -1877,12 +2277,19 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
   }
   
   .team-member {
-    background-color: var(--black);
+    background-color: rgba(26, 26, 26, 0.94);
     padding: 2rem;
     border-radius: 8px;
     text-align: center;
-    border: 1px solid var(--light-gray);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
     transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
   }
   
   .team-member:hover {
@@ -1902,29 +2309,84 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
   
   .member-avatar {
     font-size: 4rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
   }
 
   .member-avatar i {
     color: var(--primary-red);
     font-size: 4rem;
   }
-  
-  .team-member h3 {
-    font-size: 0.9rem;
-    letter-spacing: 1px;
+
+  .member-avatar-image {
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: rgba(6, 7, 14, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
+  }
+
+  .member-avatar-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .member-avatar-fallback {
+    display: none;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
   }
   
-  .member-bio {
-    font-size: 0.9rem;
-    opacity: 0.8;
+  .team-member h3 {
+    font-size: 1.4rem;
+    letter-spacing: 0.05em;
+    line-height: 1.15;
+    font-weight: 700;
+    margin: 0;
   }
   
   .member-email {
     font-size: 0.8rem;
     color: var(--primary-red);
-    margin-top: 0.5rem;
+    margin-top: 0;
     font-weight: bold;
+    word-break: break-word;
+  }
+
+  .team-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 2.25rem;
+  }
+
+  .team-view-all {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 140px;
+    padding: 0.9rem 1.5rem;
+    border-radius: 999px;
+    border: 1px solid rgba(220, 20, 60, 0.35);
+    background: rgba(26, 26, 26, 0.94);
+    color: var(--primary-red);
+    text-decoration: none;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .team-view-all:hover {
+    transform: translateY(-2px);
+    border-color: rgba(220, 20, 60, 0.55);
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.3);
   }
   
   /* Social Media Section */
@@ -1955,9 +2417,9 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
   }
   
   .social-card {
-    background: rgba(220, 20, 60, 0.03);
-    border: 1px solid rgba(220, 20, 60, 0.2);
-    border-radius: 12px;
+    background: rgba(26, 26, 26, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
     padding: 3rem 2rem;
     text-align: center;
     text-decoration: none;
@@ -1983,8 +2445,8 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
   .social-card:hover {
     transform: translateY(-10px);
     border-color: rgba(220, 20, 60, 0.6);
-    box-shadow: 0 20px 40px rgba(220, 20, 60, 0.3);
-    background: rgba(220, 20, 60, 0.08);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.42);
+    background: rgba(26, 26, 26, 0.97);
   }
   
   .social-icon {
@@ -2328,6 +2790,48 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
       grid-column: auto;
     }
 
+    .skills-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .skills .container {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .skill-card {
+      padding: 1.25rem;
+    }
+
+    .skills-dialog {
+      padding: 1rem;
+    }
+
+    .skills-dialog-panel {
+      width: min(100%, calc(100vw - 1.25rem));
+      height: min(84vh, 900px);
+      padding: 1.2rem;
+    }
+
+    .skills-dialog-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .skills-dialog-sidebar {
+      border-right: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 1.1rem 0.95rem 1rem;
+    }
+
+    .skills-dialog-visual-stage {
+      min-height: 220px;
+    }
+
+    .skills-dialog-copy {
+      padding: 1rem;
+    }
+
     .team-grid {
       grid-template-columns: 1fr;
     }
@@ -2556,7 +3060,7 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
   }
 
   /* Offensive Security UI Elements */
-  .team-member {
+  .team-member.reversing-card {
     position: relative;
     overflow: hidden;
     min-height: 320px; /* Stabilize height to prevent layout shift */
@@ -2565,21 +3069,21 @@ const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
   }
 
   /* Hide content initially for the sequence reveal */
-  .team-member .member-avatar,
-  .team-member h3,
-  .team-member .member-role,
-  .team-member .member-bio,
-  .team-member .member-email {
+  .team-member.reversing-card .member-avatar,
+  .team-member.reversing-card h3,
+  .team-member.reversing-card .member-role,
+  .team-member.reversing-card .member-bio,
+  .team-member.reversing-card .member-email {
     opacity: 0;
     visibility: hidden; /* Prevent interaction and layout issues */
     transition: opacity 0.3s ease, visibility 0.3s ease;
   }
 
-  .team-member.revealed .member-avatar,
-  .team-member.revealed h3,
-  .team-member.revealed .member-role,
-  .team-member.revealed .member-bio,
-  .team-member.revealed .member-email {
+  .team-member.reversing-card.revealed .member-avatar,
+  .team-member.reversing-card.revealed h3,
+  .team-member.reversing-card.revealed .member-role,
+  .team-member.reversing-card.revealed .member-bio,
+  .team-member.reversing-card.revealed .member-email {
     opacity: 1;
     visibility: visible;
   }

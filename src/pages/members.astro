@@ -1,0 +1,45 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Ch0wn3rs Members"
+  description="TODO: Member detail pages for the Ch0wn3rs team."
+  image="/Logo-qr.jpeg"
+>
+  <section class="members-placeholder">
+    <div class="container">
+      <h1>Members</h1>
+      <p>TODO:</p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .members-placeholder {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 120px 20px 80px;
+    background: #000;
+  }
+
+  .members-placeholder .container {
+    text-align: center;
+  }
+
+  .members-placeholder h1 {
+    margin: 0 0 1rem;
+    color: var(--primary-red);
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .members-placeholder p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem;
+  }
+</style>
