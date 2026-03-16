@@ -1,6 +1,7 @@
 "$schema" = "./node_modules/wrangler/config-schema.json"
 name = "ch0wn3rs"
 compatibility_date = "2026-03-15"
+compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "dist"
 
 [[kv_namespaces]]

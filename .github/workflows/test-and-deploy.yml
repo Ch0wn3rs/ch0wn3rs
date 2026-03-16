@@ -39,11 +39,11 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Start preview server
+      - name: Start Pages dev server
         env:
           PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ secrets.PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN }}
         run: |
-          npm run preview -- --host 127.0.0.1 --port 4321 > /tmp/ch0wn3rs-preview.log 2>&1 &
+          npx wrangler pages dev dist --ip 127.0.0.1 --port 4321 --local-protocol http --show-interactive-dev-session=false > /tmp/ch0wn3rs-preview.log 2>&1 &
           echo $! > /tmp/ch0wn3rs-preview.pid
 
       - name: Smoke test homepage and API
