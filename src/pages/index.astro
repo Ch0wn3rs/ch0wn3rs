@@ -200,34 +200,55 @@ const skillSpecialties = [
       let transitioning = false;
       let wheelAcc = 0;
       let touchStartY = 0;
-      const syncState = (index) => {
-        current = index;
-        const states = ['brand', 'stats', 'about'];
-        scene.dataset.sceneState = states[index];
+      const getStepConfig = () => {
         const isMobile = window.innerWidth <= 768;
-        
-        heroPanel.dataset.state = index <= 1 ? 'active' : '';
-        aboutPanel.dataset.state = index === 2 ? 'active' : '';
-        heroPanel.style.zIndex = index <= 1 ? '3' : '1';
-        aboutPanel.style.zIndex = index === 2 ? '3' : '2';
-        heroPanel.style.pointerEvents = index <= 1 ? 'auto' : 'none';
-        aboutPanel.style.pointerEvents = index === 2 ? 'auto' : 'none';
+        return {
+          isMobile,
+          max: isMobile ? 2 : 1,
+          states: isMobile ? ['brand', 'stats', 'about'] : ['hero', 'about']
+        };
+      };
 
-        if (index === 0) {
-          pose(heroContent, 1, 0, 0, 1);
-          pose(heroStats, isMobile ? 0 : 1, isMobile ? 60 : 0, 0, isMobile ? 0.92 : 1);
-          pose(aboutPanel, 0, 80, 0, 0.96);
-          heroPanel.style.opacity = '1';
-          heroPanel.style.transform = tf(0, 0, 1);
-          globe.style.transform = centeredGlobeTransform();
-        } else if (index === 1) {
-          pose(heroContent, isMobile ? 0 : 1, isMobile ? -60 : 0, 0, isMobile ? 0.92 : 1);
-          pose(heroStats, 1, 0, 0, 1);
-          pose(aboutPanel, 0, 80, 0, 0.96);
-          heroPanel.style.opacity = '1';
-          heroPanel.style.transform = tf(0, 0, 1);
-          globe.style.transform = shiftedGlobeTransform();
+      const syncState = (index) => {
+        const { isMobile, max, states } = getStepConfig();
+        current = Math.min(index, max);
+        scene.dataset.sceneState = states[current];
+        
+        const isAbout = current === max;
+        heroPanel.dataset.state = isAbout ? '' : 'active';
+        aboutPanel.dataset.state = isAbout ? 'active' : '';
+        heroPanel.style.zIndex = isAbout ? '1' : '3';
+        aboutPanel.style.zIndex = isAbout ? '3' : '2';
+        heroPanel.style.pointerEvents = isAbout ? 'none' : 'auto';
+        aboutPanel.style.pointerEvents = isAbout ? 'auto' : 'none';
+
+        if (!isAbout) {
+          // HERO STAGES
+          if (!isMobile) {
+            // Desktop: Single Hero Step
+            pose(heroContent, 1, 0, 0, 1);
+            pose(heroStats, 1, 0, 0, 1);
+            pose(aboutPanel, 0, 80, 0, 0.96);
+            heroPanel.style.opacity = '1';
+            heroPanel.style.transform = tf(0, 0, 1);
+            globe.style.transform = centeredGlobeTransform();
+          } else {
+            // Mobile: 2 Hero Sub-steps
+            if (current === 0) {
+              pose(heroContent, 1, 0, 0, 1);
+              pose(heroStats, 0, 40, 0, 0.92);
+              globe.style.transform = centeredGlobeTransform();
+            } else {
+              pose(heroContent, 0, -40, 0, 0.92);
+              pose(heroStats, 1, 0, 0, 1);
+              globe.style.transform = shiftedGlobeTransform();
+            }
+            pose(aboutPanel, 0, 80, 0, 0.96);
+            heroPanel.style.opacity = '1';
+            heroPanel.style.transform = tf(0, 0, 1);
+          }
         } else {
+          // ABOUT STAGE
           pose(heroPanel, 0, -100, 0, 0.96);
           pose(aboutPanel, 1, 0, 0, 1);
           globe.style.transform = shiftedGlobeTransform();
@@ -244,12 +265,12 @@ const skillSpecialties = [
       };
 
       const goTo = (to) => {
-        if (to === current || to < 0 || to > 2 || transitioning) return;
+        const { isMobile, max } = getStepConfig();
+        if (to === current || to < 0 || to > max || transitioning) return;
 
         transitioning = true;
         const from = current;
         const forward = to > from;
-        const isMobile = window.innerWidth <= 768;
 
         if (prefersReducedMotion) {
           syncState(to);
@@ -259,27 +280,22 @@ const skillSpecialties = [
 
         const promises = [];
 
-        // Handle inner hero transitions (0 <-> 1)
-        if ((from === 0 && to === 1) || (from === 1 && to === 0)) {
+        // Inner transitions for mobile only (0 <-> 1) or desktop bypass if we are at max
+        if (isMobile && ((from === 0 && to === 1) || (from === 1 && to === 0))) {
           const outEl = forward ? heroContent : heroStats;
           const inEl = forward ? heroStats : heroContent;
 
-          const outTo = forward ? { opacity: '0', transform: tf(-60, 0, 0.92) } : { opacity: '0', transform: tf(60, 0, 0.92) };
-          const inFrom = forward ? { opacity: '0', transform: tf(60, 0, 0.92) } : { opacity: '0', transform: tf(-60, 0, 0.92) };
+          const outTo = forward ? { opacity: '0', transform: tf(-40, 0, 0.92) } : { opacity: '0', transform: tf(40, 0, 0.92) };
+          const inFrom = forward ? { opacity: '0', transform: tf(40, 0, 0.92) } : { opacity: '0', transform: tf(-40, 0, 0.92) };
           
-          if (isMobile) {
-            promises.push(run(outEl, { opacity: '1', transform: tf(0, 0, 1) }, outTo, DUR));
-            promises.push(run(inEl, inFrom, { opacity: '1', transform: tf(0, 0, 1) }, DUR, DUR * 0.25));
-          } else {
-            // On desktop, keep brand visible if we want, or just transition normally
-            promises.push(run(globe, { transform: forward ? centeredGlobeTransform() : shiftedGlobeTransform() }, { transform: forward ? shiftedGlobeTransform() : centeredGlobeTransform() }, DUR));
-            promises.push(run(heroStats, { opacity: forward ? '0' : '1', transform: tf(forward ? 40 : 0, 0, forward ? 0.96 : 1) }, { opacity: forward ? '1' : '0', transform: tf(forward ? 0 : 40, 0, forward ? 1 : 0.96) }, DUR));
-          }
+          promises.push(run(outEl, { opacity: '1', transform: tf(0, 0, 1) }, outTo, DUR));
+          promises.push(run(inEl, inFrom, { opacity: '1', transform: tf(0, 0, 1) }, DUR, DUR * 0.2));
+          promises.push(run(globe, { transform: forward ? centeredGlobeTransform() : shiftedGlobeTransform() }, { transform: forward ? shiftedGlobeTransform() : centeredGlobeTransform() }, DUR));
         } 
-        // Handle full panel transitions (1 <-> 2)
+        // Transition to/from About step
         else {
-          const outEl = forward ? heroPanel : aboutPanel;
-          const inEl = forward ? aboutPanel : heroPanel;
+          const outEl = (forward && !isMobile) || (forward && isMobile && from === 1) ? heroPanel : aboutPanel;
+          const inEl = (forward && !isMobile) || (forward && isMobile && from === 1) ? aboutPanel : heroPanel;
           
           const outTo = forward ? { opacity: '0', transform: tf(-100, 0, 0.96) } : { opacity: '0', transform: tf(80, 0, 0.96) };
           const inFrom = forward ? { opacity: '0', transform: tf(80, 0, 0.96) } : { opacity: '0', transform: tf(-100, 0, 0.96) };
@@ -287,8 +303,19 @@ const skillSpecialties = [
           promises.push(run(outEl, { opacity: '1', transform: tf(0, 0, 1) }, outTo, DUR));
           promises.push(run(inEl, inFrom, { opacity: '1', transform: tf(0, 0, 1) }, DUR, DUR * 0.3));
           
-          if (!forward) {
-            promises.push(run(globe, { transform: shiftedGlobeTransform() }, { transform: shiftedGlobeTransform() }, DUR));
+          // Globe animation for panel transitions
+          if (!isMobile) {
+            // Desktop 0 <-> 1
+            promises.push(run(globe, 
+              { transform: forward ? centeredGlobeTransform() : shiftedGlobeTransform() }, 
+              { transform: forward ? shiftedGlobeTransform() : centeredGlobeTransform() }, 
+              DUR
+            ));
+          } else if (!forward && to === 0) {
+            // Mobile 1 -> 0 handled in the other block, but 2 -> 1 or 2 -> 0?
+            // Usually we go 2 -> 1 then 1 -> 0. 
+            // If we jump 2 -> 0, we need to animate globe.
+            promises.push(run(globe, { transform: shiftedGlobeTransform() }, { transform: centeredGlobeTransform() }, DUR));
           }
         }
 
@@ -307,8 +334,9 @@ const skillSpecialties = [
           return;
         }
 
+        const { max } = getStepConfig();
         const direction = Math.sign(event.deltaY);
-        const wantsNext = direction > 0 && current < 2;
+        const wantsNext = direction > 0 && current < max;
         const wantsPrev = direction < 0 && current > 0;
 
         if (!(wantsNext || wantsPrev || transitioning)) {
@@ -338,20 +366,18 @@ const skillSpecialties = [
         }
 
         const dy = touchStartY - event.touches[0].clientY;
-        const isMobile = window.innerWidth <= 768;
+        const { isMobile, max } = getStepConfig();
 
         if (isMobile) {
-          // If we are in the Hero stages (Brand or Stats), lock scroll for transitions
-          if (current < 2 && dy > 0 && window.scrollY < window.innerHeight * 0.5) {
+          if (current < max && dy > 0 && window.scrollY < window.innerHeight * 0.5) {
             if (event.cancelable) event.preventDefault();
           }
-          // Catch scroll up intent for back transitions
           else if (current > 0 && dy < 0 && window.scrollY <= 10) {
             if (event.cancelable) event.preventDefault();
           }
         } else {
           if (!isScenePinned()) return;
-          if ((current < 2 && dy > 0) || (current > 0 && dy < 0)) {
+          if ((current < max && dy > 0) || (current > 0 && dy < 0)) {
             if (event.cancelable) event.preventDefault();
           }
         }
@@ -361,11 +387,11 @@ const skillSpecialties = [
         if (transitioning) return;
         
         const dy = touchStartY - event.changedTouches[0].clientY;
-        const isMobile = window.innerWidth <= 768;
+        const { isMobile, max } = getStepConfig();
 
         if (isMobile) {
           if (Math.abs(dy) < TOUCH_THRESHOLD) return;
-          if (dy > 0 && current < 2) next();
+          if (dy > 0 && current < max) next();
           if (dy < 0 && current > 0 && window.scrollY <= 50) prev();
           return;
         }
@@ -373,14 +399,15 @@ const skillSpecialties = [
         if (!isScenePinned()) return;
         const dyAbs = Math.abs(dy);
         if (dyAbs < TOUCH_THRESHOLD) return;
-        if (dy > 0 && current < 2) next();
+        if (dy > 0 && current < max) next();
         if (dy < 0 && current > 0) prev();
       };
 
       const onKeyDown = (event) => {
         if (!isScenePinned() || transitioning) return;
+        const { max } = getStepConfig();
 
-        if (current < 2 && (event.key === 'ArrowDown' || event.key === 'PageDown' || event.key === ' ')) {
+        if (current < max && (event.key === 'ArrowDown' || event.key === 'PageDown' || event.key === ' ')) {
           event.preventDefault();
           next();
         }
@@ -396,9 +423,10 @@ const skillSpecialties = [
       };
 
       const onAboutClick = (event) => {
+        const { max } = getStepConfig();
         event.preventDefault();
         window.scrollTo({ top: 0, behavior: 'auto' });
-        if (current !== 2) goTo(2);
+        if (current !== max) goTo(max);
       };
 
       const onHomeClick = (event) => {
@@ -410,7 +438,8 @@ const skillSpecialties = [
       const aboutLinks = Array.from(document.querySelectorAll('a[href="#about"]'));
       const homeLinks = Array.from(document.querySelectorAll('a[href="#home"]'));
 
-      syncState(window.location.hash === '#about' ? 2 : 0);
+      const { max } = getStepConfig();
+      syncState(window.location.hash === '#about' ? max : 0);
 
       window.addEventListener('wheel', onWheel, { passive: false });
       window.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -934,7 +963,7 @@ const skillSpecialties = [
 <style>
   /* Hero Section */
   .hero {
-    min-height: 240vh;
+    min-height: 128vh;
     height: auto;
     padding: 0;
     position: relative;
@@ -1048,11 +1077,10 @@ const skillSpecialties = [
   
   .hero-content {
     text-align: center;
-    animation: fadeIn 1s ease-out;
   }
   
   .hero-stats {
-    animation: fadeInRight 1s ease-out 0.3s both;
+    /* Animation removed - managed by JS */
   }
   
   .stats-card {
@@ -1060,6 +1088,7 @@ const skillSpecialties = [
     border: 1px solid rgba(220, 20, 60, 0.35);
     border-radius: 18px;
     padding: 2rem;
+    box-sizing: border-box;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
     backdrop-filter: blur(10px);
   }
@@ -1259,7 +1288,6 @@ const skillSpecialties = [
     text-shadow: 
       0 0 8px rgba(220, 20, 60, 0.4),
       2px 2px 6px rgba(0, 0, 0, 0.9);
-    animation: fadeInUp 1s ease-out 0.5s both;
   }
 
   @media (max-width: 768px) {
@@ -1267,21 +1295,38 @@ const skillSpecialties = [
       flex-direction: column;
       text-align: center;
     }
-    .hero-panel[data-state="active"] .hero-content,
-    .hero-panel[data-state="active"] .hero-stats {
+    .hero-panel {
+      display: grid;
+      place-items: center;
       width: 100%;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      height: 100%;
+      padding: 0;
     }
-    .hero-panel[data-state="active"] .hero-content {
+    .hero-panel .hero-content,
+    .hero-panel .hero-stats {
+      grid-area: 1 / 1;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      position: relative;
+      transform: none;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      pointer-events: none;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
     }
-    /* Hide description on mobile brand step 0 */
-    [data-scene-state="brand"] .hero-description {
+    .hero-panel[data-state="active"] [style*="opacity: 1"] {
+      pointer-events: auto;
+    }
+    .hero-stats {
+      max-width: 100%;
+    }
+    /* Hide description on mobile brand steps */
+    [data-scene-state="brand"] .hero-description,
+    [data-scene-state="stats"] .hero-description {
       display: none;
     }
   }
@@ -2415,7 +2460,7 @@ const skillSpecialties = [
   /* Responsive Design */
   @media (max-width: 768px) {
     .hero {
-      min-height: 126vh;
+      min-height: 240vh;
       height: auto;
       padding: 0;
     }
@@ -2445,9 +2490,9 @@ const skillSpecialties = [
     .hero-panel {
       grid-template-columns: 1fr;
       gap: 2.5rem;
-      padding: 80px 1rem 40px;
+      padding: 0;
       min-height: 100%;
-      align-items: start;
+      align-items: center;
     }
     
     .hero-content {
@@ -2724,7 +2769,7 @@ const skillSpecialties = [
     }
 
     .hero-panel {
-      padding: 70px 1rem 30px;
+      padding: 0;
     }
 
     .about-panel {
@@ -2738,6 +2783,7 @@ const skillSpecialties = [
     .stats-card {
       padding: 1.2rem;
       max-width: 92%;
+      margin: 0 auto;
     }
 
     .brand-name {
@@ -2774,6 +2820,7 @@ const skillSpecialties = [
     
     .stats-card {
       padding: 1.2rem;
+      margin: 0 auto;
     }
     
     .stat-value {
@@ -2810,7 +2857,7 @@ const skillSpecialties = [
     }
 
     .hero-panel {
-      padding: 70px 1rem 30px;
+      padding: 0;
     }
 
     .about-panel .container {
@@ -2821,6 +2868,7 @@ const skillSpecialties = [
     .stats-card {
       padding: 1rem;
       max-width: 92%;
+      margin: 0 auto;
     }
     .brand-name {
       font-size: 1.8rem;
