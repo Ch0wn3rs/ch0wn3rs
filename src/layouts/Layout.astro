@@ -1,7 +1,4 @@
 ---
-import Analytics from '@vercel/analytics/astro';
-import SpeedInsights from '@vercel/speed-insights/astro';
-
 interface Props {
   title: string;
   description?: string;
@@ -39,6 +36,10 @@ const websiteSchema = {
   url: Astro.site ?? "https://ch0wn3rs.ninja/",
   description
 };
+const cloudflareWebAnalyticsToken = import.meta.env.PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN?.trim();
+const cloudflareBeaconConfig = cloudflareWebAnalyticsToken
+  ? JSON.stringify({ token: cloudflareWebAnalyticsToken })
+  : null;
 ---
 
 <!DOCTYPE html>
@@ -67,7 +68,13 @@ const websiteSchema = {
     <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
     <title>{pageTitle}</title>
-    <Analytics />
+    {cloudflareBeaconConfig && (
+      <script
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={cloudflareBeaconConfig}
+      ></script>
+    )}
     <style>
       * {
         margin: 0;
@@ -481,6 +488,5 @@ const websiteSchema = {
       window.addEventListener('scroll', updateActiveNav);
       window.addEventListener('load', updateActiveNav);
     </script>
-    <SpeedInsights />
   </body>
 </html>

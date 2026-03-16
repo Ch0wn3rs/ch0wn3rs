@@ -36,9 +36,9 @@ This file defines mandatory rules for future UI/feature changes.
 Use existing libraries by default. Current approved runtime dependencies:
 
 - `astro`
-- `@astrojs/vercel`
+- `@astrojs/cloudflare`
 - `@astrojs/sitemap`
-- `@vercel/blob`
+- `wrangler`
 - `animejs`
 - `@types/animejs`
 - `@phosphor-icons/web`

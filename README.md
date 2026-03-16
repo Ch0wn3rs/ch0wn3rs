@@ -78,7 +78,7 @@ ch0wn3rs/
 - **[Astro](https://astro.build)** - Framework web moderno
 - **[TypeScript](https://www.typescriptlang.org/)** - Tipado estático
 - **[Phosphor Icons](https://phosphoricons.com/)** - Sistema de iconos
-- **[Node Adapter](https://docs.astro.build/en/guides/integrations-guide/node/)** - SSR con Node.js
+- **[Cloudflare Adapter](https://docs.astro.build/en/guides/integrations-guide/cloudflare/)** - SSR sobre Cloudflare Workers
 
 ## 🌐 API
 
@@ -94,23 +94,32 @@ Retorna las estadísticas del equipo desde CTFtime:
 - Rating actual
 - Años activos
 
-### Cache con Vercel Storage (Blob) + Cron
+### Cache y pins con Cloudflare KV
 
-Para evitar consultar CTFtime en cada request, el proyecto guarda un snapshot en Vercel Blob y lo refresca con Vercel Cron.
+Para evitar consultar CTFtime en cada request, el proyecto guarda un snapshot en Cloudflare KV y lo refresca bajo demanda cuando la cache supera los 10 minutos. El mismo namespace también almacena los pins manuales de competencias.
 
 Endpoints:
 
 ```typescript
 GET /api/ctftime
-GET /api/cron/refresh-ctftime
 ```
 
-Variables de entorno requeridas:
+Bindings/configuración requerida en `wrangler.toml`:
 
 ```bash
-BLOB_READ_WRITE_TOKEN=...
-CRON_SECRET=...
+CTFTIME_KV
+SESSION
 ```
+
+Pins manuales:
+
+- Key: `ctftime:pins:team:408704`
+- Value: JSON con `items`, usando `reference` para reusar eventos de CTFtime o `custom` para fijar competencias manuales.
+
+Observabilidad:
+
+- `PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN` habilita el beacon oficial de Cloudflare Web Analytics en el layout.
+- Si prefieres la inyección automática de Cloudflare desde el dashboard, deja ese token vacío.
 
 ## 🎨 Características del Diseño
 
@@ -122,13 +131,13 @@ CRON_SECRET=...
 
 ## 🚢 Despliegue
 
-El sitio está configurado para desplegarse en **Vercel**:
+El sitio está configurado para desplegarse en **Cloudflare Workers**:
 
 ```bash
 # Build de producción
 npm run build
 
-# Build de producción para Vercel
+# Namespace bindings en wrangler.toml
 ```
 
 URL del sitio: [https://ch0wn3rs.ninja](https://ch0wn3rs.ninja)

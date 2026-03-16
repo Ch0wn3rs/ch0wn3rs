@@ -1,12 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import '@phosphor-icons/web/regular';
-import { fetchCtftime } from '../lib/ctftime';
+import { fetchCtftime, getCtftimeRuntimeEnv } from '../lib/ctftime';
 import { activeMembers as teamMembers } from '../lib/members';
 
 const TEAM_ID = '408704';
-const ctftime = await fetchCtftime(TEAM_ID);
-const recentCompetitions = ctftime.recentCompetitions.slice(0, 5);
+const ctftime = await fetchCtftime(TEAM_ID, getCtftimeRuntimeEnv(Astro.locals));
+const recentCompetitions = ctftime.recentCompetitions;
 const skillSpecialties = [
   {
     slug: 'crypto',
@@ -602,7 +602,7 @@ const skillSpecialties = [
     <section id="results" class="results">
       <div class="container">
         <div class="results-header">
-          <h2>Recent Competition</h2>
+          <h2>Recent Competitions</h2>
         </div>
 
         <div class="results-timeline" id="recentCompetitionsTimeline">
