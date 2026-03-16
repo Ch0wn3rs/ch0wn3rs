@@ -313,8 +313,24 @@ const skillSpecialties = [
         touchStartY = event.touches[0].clientY;
       };
 
-      const onTouchEnd = (event) => {
+      const onTouchMove = (event) => {
         if (!isScenePinned() || transitioning) return;
+        const dy = touchStartY - event.touches[0].clientY;
+
+        // If we are at Hero and swiping UP, or at About and swiping DOWN,
+        // we capture the gesture for our transition and block native scroll.
+        if ((current === 0 && dy > 0) || (current === 1 && dy < 0)) {
+          if (event.cancelable) event.preventDefault();
+        }
+      };
+
+      const onTouchEnd = (event) => {
+        if (transitioning) return;
+        
+        // If the user swiped fast, they might have moved slightly out of the pinned area.
+        // We check isScenePinned() but we can be a bit more lenient on mobile if needed.
+        if (!isScenePinned()) return;
+
         const dy = touchStartY - event.changedTouches[0].clientY;
         if (Math.abs(dy) < TOUCH_THRESHOLD) return;
         if (dy > 0 && current === 0) next();
@@ -358,7 +374,8 @@ const skillSpecialties = [
 
       window.addEventListener('wheel', onWheel, { passive: false });
       window.addEventListener('touchstart', onTouchStart, { passive: true });
-      window.addEventListener('touchend', onTouchEnd, { passive: true });
+      window.addEventListener('touchmove', onTouchMove, { passive: false });
+      window.addEventListener('touchend', onTouchEnd, { passive: false });
       window.addEventListener('keydown', onKeyDown);
       window.addEventListener('resize', onResize);
       aboutLinks.forEach((link) => link.addEventListener('click', onAboutClick));
@@ -367,6 +384,7 @@ const skillSpecialties = [
       return () => {
         window.removeEventListener('wheel', onWheel);
         window.removeEventListener('touchstart', onTouchStart);
+        window.removeEventListener('touchmove', onTouchMove);
         window.removeEventListener('touchend', onTouchEnd);
         window.removeEventListener('keydown', onKeyDown);
         window.removeEventListener('resize', onResize);
