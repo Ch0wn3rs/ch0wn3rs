@@ -236,9 +236,26 @@ function stripTags(value: string): string {
   return value.replace(/<[^>]+>/g, ' ');
 }
 
-function extractNumericText(value: string): string {
-  const match = stripTags(value).match(/[\d.]+/);
-  return match?.[0] ?? 'Pending';
+function extractNumericText(
+  value: string,
+  options?: {
+    zeroWithAsterisk?: string;
+  }
+): string {
+  const stripped = stripTags(value);
+  const match = stripped.match(/[\d.]+/);
+  const numericText = match?.[0] ?? 'Pending';
+
+  if (
+    options?.zeroWithAsterisk &&
+    numericText !== 'Pending' &&
+    Number(numericText) === 0 &&
+    stripped.includes('*')
+  ) {
+    return options.zeroWithAsterisk;
+  }
+
+  return numericText;
 }
 
 function normalizeScore(value: unknown, fractionDigits: number): string {
@@ -359,7 +376,7 @@ export function parseCompetitionRatings(html: string): Map<string, CtftimeCompet
       title: decodeHtmlEntities(rawTitle),
       place,
       ctfPoints: extractNumericText(cells[3]),
-      ratingPoints: extractNumericText(cells[4]),
+      ratingPoints: extractNumericText(cells[4], { zeroWithAsterisk: 'TBD' }),
       eventUrl: `https://ctftime.org/event/${eventId}`,
     });
   }

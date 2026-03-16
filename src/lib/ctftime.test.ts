@@ -36,6 +36,7 @@ describe('parseCompetitionRatings', () => {
       <table>
         <tr><td class="place_ico"></td><td class="place">21</td><td><a href="/event/3162">MIPT CTF Quals 2026</a></td><td>2638.0000</td><td>0.000<a href="/event/3162/weight"><i rel="weight_voting" id="weight_voting">*</i></a></td></tr>
         <tr><td class="place_ico"></td><td class="place">24</td><td><a href="/event/3110">DiceCTF 2026 Quals</a></td><td>2072.0000</td><td>80.371</td></tr>
+        <tr><td class="place_ico"></td><td class="place">30</td><td><a href="/event/3200">Zero Without Star</a></td><td>1500.0000</td><td>0.000</td></tr>
         <tr><td class="place_ico"></td><td class="place">10</td><td><a href="/event/3098">Batman&#39;s Kitchen CTF 2026</a></td><td>10689.0000</td><td>21.469</td></tr>
       </table>
     `;
@@ -46,12 +47,16 @@ describe('parseCompetitionRatings', () => {
       eventId: '3162',
       title: 'MIPT CTF Quals 2026',
       ctfPoints: '2638.0000',
-      ratingPoints: '0.000',
+      ratingPoints: 'TBD',
       place: 21,
     });
     expect(rows.get('3110')).toMatchObject({
       title: 'DiceCTF 2026 Quals',
       ratingPoints: '80.371',
+    });
+    expect(rows.get('3200')).toMatchObject({
+      title: 'Zero Without Star',
+      ratingPoints: '0.000',
     });
     expect(rows.get('3098')).toMatchObject({
       title: "Batman's Kitchen CTF 2026",
