@@ -140,6 +140,16 @@ npm run build
 # Namespace bindings en wrangler.toml
 ```
 
+### GitHub Actions
+
+El workflow [test-and-deploy.yml](/home/zerotwo/ch0wn3rs/.github/workflows/test-and-deploy.yml) corre tests, build, una smoke test local con `astro preview`, y despliega automáticamente en pushes a `main`.
+
+Secrets requeridos en GitHub:
+
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
+- `PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN` opcional
+
 URL del sitio: [https://ch0wn3rs.ninja](https://ch0wn3rs.ninja)
 
 ## 👥 Equipo
