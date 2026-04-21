@@ -57,7 +57,7 @@ export const teamMembers: TeamMember[] = [
       { type: 'email', url: 'mailto:rios@ch0wn3rs.ninja', label: 'Email' },
       { type: 'linkedin', url: 'https://www.linkedin.com/in/emanuel-rios-73a458382/', label: 'LinkedIn' },
     ],
-    status: 'active',
+    status: 'retired',
   },
   {
     slug: '02loveslollipop',
